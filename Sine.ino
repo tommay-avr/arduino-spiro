@@ -1,8 +1,8 @@
 #pragma GCC optimize ("-O2")
 
-// 1000 iterations of NEXT(&blah) takes 13.1ms.
-// 13.1us per iteration => 76335 iterations/sec.
-// 76335 iterations/sec / 24 frames/sec = 3180 iterations/frame.
+// 1000 iterations of NEXT(&blah) takes 12.7ms.
+// 12,7us per iteration => 78740 iterations/sec.
+// 78740 iterations/sec / 24 frames/sec = 3280 iterations/frame.
 // That seems pretty good since we only need about 200-300 iterations/frame,
 // not counting that we really need quadrature oscillators, and two of them,
 // and whatever other fancy stuff on top of that.
@@ -70,9 +70,7 @@ struct ramp {
 int16_t
 ramp_next(struct d1 *in) {
   SELF(ramp);
-  int16_t accum = self->accum;
-  self->accum = accum + NEXT(self->delta);
-  return accum;
+  return self->accum += NEXT(self->delta);
 }
 
 struct xform {
