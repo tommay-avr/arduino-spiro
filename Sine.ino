@@ -57,6 +57,59 @@ ramp_next(struct d1 *in) {
   return self->accum += NEXT(self->delta);
 }
 
+#if 0
+struct up_down {
+  ISA(d1);
+  fix16_t accum;
+  struct d1 *delta;
+};
+
+#define NEW_UP_DOWN(INIT, DELTA) { \
+    NEW_D1(up_down_next),			\
+    .accum = INIT,				\
+    .delta = (struct d1 *)&(DELTA),		\
+  }
+
+// As accum varies between -1 and 1, it is reflected back to stay
+// within -0.5 to 0.5.
+//
+fix16_t
+up_down_next(struct d1 *in) {
+  SELF(up_down);
+  fix16_t accum = self->accum += NEXT(self->delta);
+
+#if 0
+  // Compiler converts this to z < fix(0.5), buggy.
+  if ((fix16_t)(accum + fix(0.5)) < 0) {
+#else
+  if (accum < fix(-0.5) || accum > fix(0.5)) {
+#endif
+    return fix(1) - accum;
+  }
+  else {
+    return accum;
+  }
+}
+#endif
+
+struct scale {
+  ISA(d1);
+  struct d1 *child;
+  struct d1 *scale;
+};
+
+#define NEW_SCALE(INIT, CHILD, SCALE) {		\
+    NEW_D1(scale_next),				\
+    .child = (struct d1 *)&(SCALE),		\
+    .scale = (struct d1 *)&(SCALE),		\
+  }
+
+fix16_t
+scale_next(struct d1 *in) {
+  SELF(scale);
+  return times_signed(NEXT(self->child), NEXT(self->scale));
+}
+
 struct xform {
   ISA(d1);
   struct d1 *child;
@@ -103,16 +156,6 @@ plus_next(struct d1 *in) {
   SELF(plus);
   return NEXT(self->p1) + NEXT(self->p2);
 }
-
-/*
--0.25 -> 0.25 ramps from -0.5 to 0.5
-0.25 -> 0.75 stays at 0.5
-0.75 -> +/- 1 -> -0.75  ramps from 0.5 to -0.5
--0.75 -> -0.25 stays at -0.5
-
-DECL_NEXT(square) {
-  fix16_t phase = NEXT(self->p);
-*/
 
 struct d2 {
   void (*next)(struct d2 *p);
@@ -172,12 +215,69 @@ double unfix(fix16_t n) {
 }
 #endif
 
+// Creates a square, with a corresponding quadrature signal.
+// 0 -> 0.5 ramps from -0.5 to 0.5
+// 0.5 -> +/-1 stays at 0.5
+// -1 -> -0.5 ramps from 0.5 to -0.5
+// -0.5 -> 0 stays at -0.5
+//
+fix16_t
+square(fix16_t n) {
+  if (n >= 0) {
+    if (n < fix(0.5)) {
+      return fix(-0.5) + n*2;
+    }
+    else {
+      return fix(0.5);
+    }
+  }
+  else {
+    if (n < fix(-0.5)) {
+      return fix(-1.5) - n*2;
+    }
+    else {
+      return fix(-0.5);
+    }
+  }
+}
+
+// As n varies between -1 and 1, it is reflected back to stay within
+// -0.5 to 0.5.  Creates a diamond, with a corresponding quadrature
+// signal.
+//
+fix16_t
+diamond(fix16_t n) {
+#if 0
+  // Compiler converts this to z < fix(0.5), buggy.
+  if ((fix16_t)(n + fix(0.5)) < 0) {
+#else
+  if (n < fix(-0.5) || n > fix(0.5)) {
+#endif
+    return fix(1) - n;
+  }
+  else {
+    return n;
+  }
+}
+
+// circle_quad is a circle with varying quadrature phase.
 struct constant accum_delta = NEW_CONSTANT(327);
 struct ramp accum_ramp = NEW_RAMP(0, accum_delta);
 // This gives a varying phase.
-struct constant phase_delta = NEW_CONSTANT(1);
+struct constant phase_delta = NEW_CONSTANT(0);
 struct ramp phase_ramp = NEW_RAMP(0, phase_delta);
-struct quadrature blah = NEW_QUADRATURE(accum_ramp, phase_ramp, zcos, zsin);
+// These could both be zsin:
+struct quadrature circle_quad = NEW_QUADRATURE(accum_ramp, phase_ramp, zcos, zsin);
+
+// square_quad is a square with varying quadrature phase.
+struct quadrature square_quad = NEW_QUADRATURE(accum_ramp, phase_ramp, square, square);
+
+// diamond_quad is a diamond with varying quadrature phase.
+struct quadrature diamond_quad = NEW_QUADRATURE(accum_ramp, phase_ramp, diamond, diamond);
+
+//#define RUN_ME circle_quad
+//#define RUN_ME square_quad
+#define RUN_ME diamond_quad
 
 #ifdef ARDUINO
 
@@ -192,7 +292,7 @@ void
 loop() {
   int count = 0;
   for (;;) {
-    NEXT((struct d1 *)&blah);
+    NEXT((struct d1 *)&RUN_ME);
 #if 1
     if (++count == 1000) {
       count = 0;
@@ -202,9 +302,9 @@ loop() {
       Serial.println(delta);
     }
 #else
-    Serial.print(X(&blah));
+    Serial.print(X(&RUN_ME));
     Serial.print(", ");
-    Serial.println(Y(&blah));
+    Serial.println(Y(&RUN_ME));
 #endif
   }
 }
