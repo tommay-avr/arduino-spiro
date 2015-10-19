@@ -6,12 +6,12 @@
 // Compute sine(z)/2, where z goes from -1 to 1 representing angles of
 // -pi to pi.
 //
-static __inline__ int16_t
-zsin(int16_t z)
+static __inline__ fix16_t
+zsin(fix16_t z)
 {
   // Reflect z back into [-1/2, 1/2].
 
-  if ((int16_t)(z + fix(0.5)) < 0) {
+  if ((fix16_t)(z + fix(0.5)) < 0) {
     z = fix(1) - z;
   }
 
@@ -36,8 +36,8 @@ zsin(int16_t z)
   return times_unsigned(z, (fix(1.5) - (times_signed(z, z) << 1)));
 }
 
-static __inline__ int16_t
-zcos(int16_t z)
+static __inline__ fix16_t
+zcos(fix16_t z)
 {
   return zsin(z + fix(0.5));
 }

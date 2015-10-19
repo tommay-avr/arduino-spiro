@@ -26,19 +26,19 @@
 #define NEXT(pd1) ((pd1)->next(pd1))
 
 struct d1 {
-  int16_t (*next)(struct d1 *p);
+  fix16_t (*next)(struct d1 *p);
 };
 
 #define NEW_D1(NEXT) .super_type = {.next = &(NEXT)}
 
 struct constant {
   ISA(d1);
-  int16_t value;
+  fix16_t value;
 };
 
 #define NEW_CONSTANT(VALUE) { NEW_D1(constant_next), .value = VALUE }
 
-int16_t
+fix16_t
 constant_next(struct d1 *in) {
   SELF(constant);
   return self->value;
@@ -46,7 +46,7 @@ constant_next(struct d1 *in) {
 
 struct ramp {
   ISA(d1);
-  int16_t accum;
+  fix16_t accum;
   struct d1 *delta;
 };
 
@@ -56,7 +56,7 @@ struct ramp {
     .delta = (struct d1 *)&(DELTA),		\
   }
 
-int16_t
+fix16_t
 ramp_next(struct d1 *in) {
   SELF(ramp);
   return self->accum += NEXT(self->delta);
@@ -65,10 +65,10 @@ ramp_next(struct d1 *in) {
 struct xform {
   ISA(d1);
   struct d1 *child;
-  int16_t (*xform)(int16_t);
+  fix16_t (*xform)(fix16_t);
 };
 
-int16_t
+fix16_t
 xform_next(struct d1 *in) {
   SELF(xform);
   return self->xform(NEXT(self->child));
@@ -85,7 +85,7 @@ struct to_zsin {
     .angle = (struct d1 *)&(ANGLE),		\
   }
 
-int16_t
+fix16_t
 to_zsin_next(struct d1 *in) {
   SELF(to_zsin);
   return zsin(NEXT(self->angle));
@@ -103,7 +103,7 @@ struct plus {
     .p2 = (struct d1 *)&(P2),			\
   }
 
-int16_t
+fix16_t
 plus_next(struct d1 *in) {
   SELF(plus);
   return NEXT(self->p1) + NEXT(self->p2);
@@ -116,13 +116,13 @@ plus_next(struct d1 *in) {
 -0.75 -> -0.25 stays at -0.5
 
 DECL_NEXT(square) {
-  int16_t phase = NEXT(self->p);
+  fix16_t phase = NEXT(self->p);
 */
 
 struct d2 {
   void (*next)(struct d2 *p);
-  int16_t x;
-  int16_t y;
+  fix16_t x;
+  fix16_t y;
 };
 
 #define X(o) (o->super_type.x)
@@ -132,14 +132,14 @@ struct quadrature {
   ISA(d2);
   struct d1 *accum;
   struct d1 *phase;
-  int16_t (*zx)(int16_t in);
-  int16_t (*zy)(int16_t in);
+  fix16_t (*zx)(fix16_t in);
+  fix16_t (*zy)(fix16_t in);
 };
 
 void
 quadrature_next(struct d2 *in) {
   SELF(quadrature);
-  int16_t accum = NEXT(self->accum);
+  fix16_t accum = NEXT(self->accum);
   X(self) = self->zx(accum);
   Y(self) = self->zy(accum + NEXT(self->phase));
 }
@@ -154,17 +154,17 @@ void
 rotate_next(struct d2 *in) {
   SELF(rotate);
   NEXT(self->child);
-  int16_t angle = NEXT(self->angle);
+  fix16_t angle = NEXT(self->angle);
   // XXX s and c can overflow here.
-  int16_t s = zsin(angle) * 2;
-  int16_t c = zcos(angle) * 2;
+  fix16_t s = zsin(angle) * 2;
+  fix16_t c = zcos(angle) * 2;
   X(self) = self->child->x * c - self->child->y * s;
   Y(self) = self->child->x * s + self->child->y * c;
 }
 
 #ifndef ARDUINO
 // For debugging.
-double unfix(int16_t n) {
+double unfix(fix16_t n) {
   return (double)n / (double)(uint16_t)(1 << 15);
 }
 #endif
