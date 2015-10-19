@@ -15,9 +15,10 @@ zsin(fix16_t z)
 {
   // Reflect z back into [-1/2, 1/2].
 
-#if 0
-  // Compiler converts this to z < fix(0.5), buggy.
-  if ((fix16_t)(z + fix(0.5)) < 0) {
+  // Need to use an inner cast to unsigned because signed integer overflow
+  // is undefined and this breaks with -O2.
+#if 1
+  if ((fix16_t)((ufix16_t)z + fix(0.5)) < 0) {
 #else
   if (z < fix(-0.5) || z > fix(0.5)) {
 #endif
