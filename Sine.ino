@@ -120,8 +120,8 @@ struct d2 {
   fix16_t y;
 };
 
-#define X(o) (o->super_type.x)
-#define Y(o) (o->super_type.y)
+#define X(o) ((o)->super_type.x)
+#define Y(o) ((o)->super_type.y)
 
 struct quadrature {
   ISA(d2);
@@ -130,6 +130,14 @@ struct quadrature {
   fix16_t (*zx)(fix16_t in);
   fix16_t (*zy)(fix16_t in);
 };
+
+#define NEW_QUADRATURE(ACCUM, PHASE, ZX, ZY) {	\
+    NEW_D1(quadrature_next),			\
+    .accum = (struct d1 *)&(ACCUM),		\
+    .phase = (struct d1 *)&(PHASE),		\
+    .zx = ZX,					\
+    .zy = ZY,					\
+  }
 
 void
 quadrature_next(struct d2 *in) {
@@ -164,11 +172,12 @@ double unfix(fix16_t n) {
 }
 #endif
 
-struct constant half = NEW_CONSTANT(fix(0.5));
-struct constant delta = NEW_CONSTANT(327);
-struct ramp ramp1 = NEW_RAMP(0, delta);
-struct plus plus1 = NEW_PLUS(half, ramp1);
-struct to_zsin blah = NEW_TO_ZSIN(plus1);
+struct constant accum_delta = NEW_CONSTANT(327);
+struct ramp accum_ramp = NEW_RAMP(0, accum_delta);
+// This gives a varying phase.
+struct constant phase_delta = NEW_CONSTANT(1);
+struct ramp phase_ramp = NEW_RAMP(0, phase_delta);
+struct quadrature blah = NEW_QUADRATURE(accum_ramp, phase_ramp, zcos, zsin);
 
 #ifdef ARDUINO
 
@@ -184,19 +193,20 @@ loop() {
   int count = 0;
   for (;;) {
     NEXT((struct d1 *)&blah);
+#if 1
     if (++count == 1000) {
       count = 0;
       unsigned long now = micros();
       unsigned long delta = now - then;
       then = now;
-#if 0
-      Serial.print("micros: ");
-#endif
       Serial.println(delta);
     }
+#else
+    Serial.print(X(&blah));
+    Serial.print(", ");
+    Serial.println(Y(&blah));
+#endif
   }
-
-  //Serial.println(NEXT((struct d1 *)&blah));
 }
 
 #else
