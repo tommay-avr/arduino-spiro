@@ -4,10 +4,10 @@
   #include <stdint.h>
 #else
   #include <stdio.h>
-  typedef short int16_t;
-  typedef unsigned short uint16_t;
-  typedef long int32_t;
-  typedef unsigned long uint32_t;
+  #define int16_t   short
+  #define uint16_t  unsigned short
+  #define int32_t   long
+  #define uint32_t  unsigned long
 #endif
 
 #ifdef ARDUINO
