@@ -110,6 +110,27 @@ class Sum < Term
   end
 end
 
+class Scale < Term
+  def initialize(term:, xscale:, yscale: nil)
+    super()
+    @term = term
+    @xscale = maybe_constant(xscale)
+    @yscale = maybe_constant(yscale || xscale)
+  end
+
+  def create
+    puts %Q{
+      #{declare("void", "struct point *p")}
+      {
+        #{@term.create}(p);
+        p->x = times_signed(p->x, #{@xscale.create});
+        p->y = times_signed(p->y, #{@yscale.create});
+      }
+    }
+    name
+  end
+end
+
 name =
   Sum.new(
     term1: Quadrature.new(
@@ -117,10 +138,12 @@ name =
       phase: Ramp.new(init: "fix(0.5)", delta: 1),
       fx: "zsin",
       fy: "zsin"),
-    term2: Quadrature.new(
-      angle: Ramp.new(delta: -360),
-      phase: Ramp.new(init: "fix(0.5)", delta: 0),
-      fx: "zsin",
-      fy: "zsin")).create
+    term2: Scale.new(
+      term: Quadrature.new(
+        angle: Ramp.new(delta: -360),
+        phase: Ramp.new(init: "fix(0.5)", delta: 0),
+        fx: "zsin",
+        fy: "zsin"),
+      xscale: "fix(0.5)")).create
 
 puts "#define spiro #{name}"

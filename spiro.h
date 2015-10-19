@@ -89,6 +89,21 @@
 
       
       static __inline__ void
+      scale_0(struct point *p)
+      __attribute__((always_inline));
+      
+      static __inline__ void
+      scale_0(struct point *p)
+    
+      {
+        quadrature_1(p);
+        p->x = times_signed(p->x, fix(0.5));
+        p->y = times_signed(p->y, fix(0.5));
+      }
+    
+
+      
+      static __inline__ void
       sum_0(struct point *p)
       __attribute__((always_inline));
       
@@ -98,7 +113,7 @@
       {
         quadrature_0(p);
         struct point p2;
-        quadrature_1(&p2);
+        scale_0(&p2);
         p->x += p2.x;
         p->y += p2.y;
       }
