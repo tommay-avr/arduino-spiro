@@ -29,6 +29,10 @@ class Term
     end
   end
 
+  def +(term)
+    Sum.new(term1: self, term2: term)
+  end
+
   def self.next_number
     @number ||= 0
   ensure
@@ -135,19 +139,19 @@ def fix(n)
   "fix(#{n})"
 end
 
-name =
-  Sum.new(
-    term1: Quadrature.new(
-      angle: Ramp.new(delta: 327),
-      phase: Ramp.new(init: fix(0.5), delta: 1),
+spiro =
+  Quadrature.new(
+    angle: Ramp.new(delta: 327),
+    phase: Ramp.new(init: fix(0.5), delta: 1),
+    fx: "zsin",
+    fy: "zsin") +
+  Scale.new(
+    term: Quadrature.new(
+      angle: Ramp.new(delta: -360),
+      phase: Ramp.new(init: fix(0.5), delta: 0),
       fx: "zsin",
       fy: "zsin"),
-    term2: Scale.new(
-      term: Quadrature.new(
-        angle: Ramp.new(delta: -360),
-        phase: Ramp.new(init: fix(0.5), delta: 0),
-        fx: "zsin",
-        fy: "zsin"),
-      xscale: fix(0.5))).create
+    xscale: fix(0.5))
 
+name = spiro.create
 puts "#define spiro #{name}"
