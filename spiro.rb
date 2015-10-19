@@ -90,11 +90,39 @@ class Quadrature < Term
   end
 end
 
+class Sum < Term
+  def initialize(term1:, term2:)
+    super("void", "struct point *p");
+    @term1 = term1
+    @term2 = term2
+  end
+
+  def create
+    puts %Q{
+      #{declare}
+      {
+        #{@term1.create}(p);
+        struct point p2;
+        #{@term2.create}(&p2);
+        p->x += p2.x;
+        p->y += p2.y;
+      }
+    }
+    name
+  end
+end
+
 name =
-  Quadrature.new(
-    angle: Ramp.new(delta: 327),
-    phase: Ramp.new(init: "fix(0.5)", delta: 1),
-    fx: "zsin",
-    fy: "zsin").create
+  Sum.new(
+    term1: Quadrature.new(
+      angle: Ramp.new(delta: 327),
+      phase: Ramp.new(init: "fix(0.5)", delta: 1),
+      fx: "zsin",
+      fy: "zsin"),
+    term2: Quadrature.new(
+      angle: Ramp.new(delta: -360),
+      phase: Ramp.new(init: "fix(0.5)", delta: 0),
+      fx: "zsin",
+      fy: "zsin")).create
 
 puts "#define spiro #{name}"
