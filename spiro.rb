@@ -33,6 +33,15 @@ class Term
     Sum.new(term1: self, term2: term)
   end
 
+  def *(scale)
+    case scale
+    when Array
+      Scale.new(term: self, xscale: scale[0], yscale: scale[1])
+    else
+      Scale.new(term: self, xscale: scale)
+    end
+  end
+
   def self.next_number
     @number ||= 0
   ensure
@@ -145,13 +154,11 @@ spiro =
     phase: Ramp.new(init: fix(0.5), delta: 1),
     fx: "zsin",
     fy: "zsin") +
-  Scale.new(
-    term: Quadrature.new(
-      angle: Ramp.new(delta: -360),
-      phase: Ramp.new(init: fix(0.5), delta: 0),
-      fx: "zsin",
-      fy: "zsin"),
-    xscale: fix(0.5))
+  Quadrature.new(
+    angle: Ramp.new(delta: -360),
+    phase: Ramp.new(init: fix(0.5), delta: 0),
+    fx: "zsin",
+    fy: "zsin") * fix(0.5)
 
 name = spiro.create
 puts "#define spiro #{name}"
