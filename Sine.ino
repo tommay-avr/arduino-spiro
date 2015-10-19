@@ -1,5 +1,12 @@
 #pragma GCC optimize ("-O2")
 
+// 1000 iterations of NEXT(&blah) takes 13.1ms.
+// 13.1us per iteration => 76335 iterations/sec.
+// 76335 iterations/sec / 24 frames/sec = 3180 iterations/frame.
+// That seems pretty good since we only need about 200-300 iterations/frame,
+// not counting that we really need quadrature oscillators, and two of them,
+// and whatever other fancy stuff on top of that.
+
 #ifdef ARDUINO
   #include <stdint.h>
 #else
@@ -216,6 +223,8 @@ struct to_zsin blah = NEW_TO_ZSIN(plus1);
 
 #ifdef ARDUINO
 
+static unsigned long then;
+
 void
 setup() {
   Serial.begin(9600);
@@ -223,7 +232,22 @@ setup() {
 
 void
 loop() {
-  Serial.println(NEXT((struct d1 *)&blah));
+  int count = 0;
+  for (;;) {
+    NEXT((struct d1 *)&blah);
+    if (++count == 1000) {
+      count = 0;
+      unsigned long now = micros();
+      unsigned long delta = now - then;
+      then = now;
+#if 0
+      Serial.print("micros: ");
+#endif
+      Serial.println(delta);
+    }
+  }
+
+  //Serial.println(NEXT((struct d1 *)&blah));
 }
 
 #else
