@@ -1,6 +1,8 @@
 #ifndef _fixed_point_h_
 #define _fixed_point_h_
 
+#include <stdint.h>
+
 typedef int16_t fix16_t;
 typedef uint16_t ufix16_t;
 
