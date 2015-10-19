@@ -115,7 +115,7 @@ plus_next(struct d1 *in) {
   return NEXT(self->p1) + NEXT(self->p2);
 }
 
-#if 0
+/*
 -0.25 -> 0.25 ramps from -0.5 to 0.5
 0.25 -> 0.75 stays at 0.5
 0.75 -> +/- 1 -> -0.75  ramps from 0.5 to -0.5
@@ -123,7 +123,7 @@ plus_next(struct d1 *in) {
 
 DECL_NEXT(square) {
   int16_t phase = NEXT(self->p);
-#endif
+*/
 
 struct d2 {
   void (*next)(struct d2 *p);
