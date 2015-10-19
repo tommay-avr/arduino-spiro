@@ -8,6 +8,10 @@
 //
 static __inline__ fix16_t
 zsin(fix16_t z)
+__attribute__((always_inline));
+
+static __inline__ fix16_t
+zsin(fix16_t z)
 {
   // Reflect z back into [-1/2, 1/2].
 
@@ -40,6 +44,10 @@ zsin(fix16_t z)
 
   return times_unsigned(z, (fix(1.5) - (times_signed(z, z) << 1)));
 }
+
+static __inline__ fix16_t
+zcos(fix16_t z)
+__attribute__((always_inline));
 
 static __inline__ fix16_t
 zcos(fix16_t z)
