@@ -1,9 +1,7 @@
 #!/usr/bin/env ruby
 
 class Term
-  def initialize(return_type, args)
-    @return_type = return_type
-    @args = args
+  def initialize
     @name = "#{self.class.name.downcase}_#{self.class.next_number}"
   end
 
@@ -11,14 +9,14 @@ class Term
     @name
   end
 
-  def declare
+  def declare(return_type, args)
     %Q{
-      static __inline__ #{@return_type}
-      #{name}(#{@args})
+      static __inline__ #{return_type}
+      #{name}(#{args})
       __attribute__((always_inline));
       
-      static __inline__ #{@return_type}
-      #{name}(#{@args})
+      static __inline__ #{return_type}
+      #{name}(#{args})
     }
   end
 
@@ -50,14 +48,14 @@ end
 
 class Ramp < Term
   def initialize(init: 0, delta:)
-    super("fix16_t", "void");
+    super()
     @init = init
     @delta = maybe_constant(delta)
   end
 
   def create
     puts %Q{
-      #{declare}
+      #{declare("fix16_t", "void")}
       {
         static fix16_t accum #{@init != 0 ? "= #{@init}" : ""};
         return accum += #{@delta.create};
@@ -69,7 +67,7 @@ end
 
 class Quadrature < Term
   def initialize(angle:, phase: "fix(0.5)", fx:, fy:)
-    super("void", "struct point *p");
+    super()
     @angle = maybe_constant(angle)
     @phase = maybe_constant(phase)
     @fx = fx
@@ -78,7 +76,7 @@ class Quadrature < Term
 
   def create
     puts %Q{
-      #{declare}
+      #{declare("void", "struct point *p")}
       {
         fix16_t angle = #{@angle.create}();
         p->x = #{@fx}(angle);
@@ -92,14 +90,14 @@ end
 
 class Sum < Term
   def initialize(term1:, term2:)
-    super("void", "struct point *p");
+    super()
     @term1 = term1
     @term2 = term2
   end
 
   def create
     puts %Q{
-      #{declare}
+      #{declare("void", "struct point *p")}
       {
         #{@term1.create}(p);
         struct point p2;
