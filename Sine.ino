@@ -7,18 +7,13 @@
 // not counting that we really need quadrature oscillators, and two of them,
 // and whatever other fancy stuff on top of that.
 
-#ifdef ARDUINO
-  #include <stdint.h>
-#else
-  #include <stdio.h>
-  #define int16_t   short
-  #define uint16_t  unsigned short
-  #define int32_t   long
-  #define uint32_t  unsigned long
-#endif
-
+#include <stdint.h>
 #include "fixed_point.h"
 #include "zsin.h"
+
+#ifndef ARDUINO
+  #include <stdio.h>
+#endif
 
 #define ISA(SUPER) struct SUPER super_type
 #define SELF(TYPE) struct TYPE *self= (struct TYPE *) in
