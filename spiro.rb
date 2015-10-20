@@ -144,6 +144,12 @@ class Circle < Quadrature
   end
 end
 
+class Diamond < Quadrature
+  def initialize(angle:, phase: "fix(0.5)")
+    super(angle: angle, phase: phase, fx: "diamond", fy: "diamond")
+  end
+end
+
 class Sum < Term
   def initialize(term1:, term2:)
     super()
@@ -225,6 +231,13 @@ spiro =
   Circle.new(
     angle: Ramp.new(delta: -360),
     phase: Ramp.new(init: fix(0.5), delta: 0)) * fix(0.5) # % DDA.new(n: fix(0.1), ticks: 1000)
+
+spinning_diamond =
+  Diamond.new(
+    angle: Ramp.new(delta: 327)) %
+  DDA.new(n: fix(0.1), ticks: 1000)
+
+spinning_diamond.create
 
 name = spiro.create
 puts "#define spiro #{name}"

@@ -13,6 +13,22 @@ struct point {
   fix16_t y;
 };
 
+// As n varies between -1 and 1, it is reflected back to stay within
+// -0.5 to 0.5.  Creates a diamond, with a corresponding quadrature
+// signal.
+//
+static __inline__ fix16_t
+diamond(fix16_t n) {
+  // Need to use an inner cast to unsigned because signed integer overflow
+  // is undefined and this breaks with -O2.
+  if ((fix16_t)((ufix16_t)n + fix(0.5)) < 0) {
+    return fix(1) - n;
+  }
+  else {
+    return n;
+  }
+}
+
 #include "spiro.h"
 
 #ifdef ARDUINO
