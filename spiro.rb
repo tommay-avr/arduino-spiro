@@ -138,6 +138,12 @@ class Quadrature < Term
   end
 end
 
+class Circle < Quadrature
+  def initialize(angle:, phase: "fix(0.5)")
+    super(angle: angle, phase: phase, fx: "zsin", fy: "zsin")
+  end
+end
+
 class Sum < Term
   def initialize(term1:, term2:)
     super()
@@ -213,16 +219,12 @@ def fix(n)
 end
 
 spiro =
-  Quadrature.new(
+  Circle.new(
     angle: Ramp.new(delta: 327),
-    phase: Ramp.new(init: fix(0.5), delta: 1),
-    fx: "zsin",
-    fy: "zsin") +
-  Quadrature.new(
+    phase: Ramp.new(init: fix(0.5), delta: 1)) +
+  Circle.new(
     angle: Ramp.new(delta: -360),
-    phase: Ramp.new(init: fix(0.5), delta: 0),
-    fx: "zsin",
-    fy: "zsin") * fix(0.5) # % DDA.new(n: fix(0.1), ticks: 1000)
+    phase: Ramp.new(init: fix(0.5), delta: 0)) * fix(0.5) # % DDA.new(n: fix(0.1), ticks: 1000)
 
 name = spiro.create
 puts "#define spiro #{name}"
