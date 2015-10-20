@@ -79,11 +79,10 @@ class Ramp < Term
 
   def create
     puts %Q{
-      static fix16_t #{name}_accum #{@init != 0 ? "= #{@init}" : ""};
-
       #{declare("fix16_t", "void")}
       {
-        return #{name}_accum += #{@delta.create}();
+        static fix16_t accum #{@init != 0 ? "= #{@init}" : ""};
+        return accum += #{@delta.create}();
       }
     }
     name
@@ -99,17 +98,17 @@ class DDA < Term
 
   def create
     puts %Q{
-      static fix16_t #{name}_n = 0;
-      static int16_t #{name}_error = 0;
-
       #{declare("fix16_t", "void")}
       {
-        #{name}_error += #{@n};
-        if (#{name}_error >= 0) {
-          #{name}_error -= #{@ticks};
-          #{name}_n++;
+        static fix16_t n = 0;
+        static int16_t error = 0;
+
+        error += #{@n};
+        if (error >= 0) {
+          error -= #{@ticks};
+          n++;
         }
-        return #{name}_n;
+        return n;
       }
     }
     name
