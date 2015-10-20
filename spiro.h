@@ -1,4 +1,17 @@
 
+      
+      static __inline__ fix16_t
+      constant_0(void)
+      __attribute__((always_inline));
+      
+      static __inline__ fix16_t
+      constant_0(void)
+    
+      {
+        return 327;
+      }
+    
+
       static fix16_t ramp_0_accum ;
 
       
@@ -10,7 +23,20 @@
       ramp_0(void)
     
       {
-        return ramp_0_accum += 327;
+        return ramp_0_accum += constant_0();
+      }
+    
+
+      
+      static __inline__ fix16_t
+      constant_1(void)
+      __attribute__((always_inline));
+      
+      static __inline__ fix16_t
+      constant_1(void)
+    
+      {
+        return 1;
       }
     
 
@@ -25,7 +51,7 @@
       ramp_1(void)
     
       {
-        return ramp_1_accum += 1;
+        return ramp_1_accum += constant_1();
       }
     
 
@@ -45,6 +71,19 @@
       }
     
 
+      
+      static __inline__ fix16_t
+      constant_2(void)
+      __attribute__((always_inline));
+      
+      static __inline__ fix16_t
+      constant_2(void)
+    
+      {
+        return -360;
+      }
+    
+
       static fix16_t ramp_2_accum ;
 
       
@@ -56,7 +95,20 @@
       ramp_2(void)
     
       {
-        return ramp_2_accum += -360;
+        return ramp_2_accum += constant_2();
+      }
+    
+
+      
+      static __inline__ fix16_t
+      constant_3(void)
+      __attribute__((always_inline));
+      
+      static __inline__ fix16_t
+      constant_3(void)
+    
+      {
+        return 0;
       }
     
 
@@ -71,7 +123,7 @@
       ramp_3(void)
     
       {
-        return ramp_3_accum += 0;
+        return ramp_3_accum += constant_3();
       }
     
 
@@ -92,6 +144,32 @@
     
 
       
+      static __inline__ fix16_t
+      constant_4(void)
+      __attribute__((always_inline));
+      
+      static __inline__ fix16_t
+      constant_4(void)
+    
+      {
+        return fix(0.5);
+      }
+    
+
+      
+      static __inline__ fix16_t
+      constant_5(void)
+      __attribute__((always_inline));
+      
+      static __inline__ fix16_t
+      constant_5(void)
+    
+      {
+        return fix(0.5);
+      }
+    
+
+      
       static __inline__ void
       scale_0(struct point *p)
       __attribute__((always_inline));
@@ -101,8 +179,8 @@
     
       {
         quadrature_1(p);
-        p->x = times_signed(p->x, fix(0.5));
-        p->y = times_signed(p->y, fix(0.5));
+        p->x = times_signed(p->x, constant_4());
+        p->y = times_signed(p->y, constant_5());
       }
     
 

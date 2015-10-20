@@ -53,13 +53,20 @@ class Term
   end
 end
 
-class Constant
+class Constant < Term
   def initialize(value:)
+    super()
     @value = value
   end
 
   def create
-    @value
+    puts %Q{
+      #{declare("fix16_t", "void")}
+      {
+        return #{@value};
+      }
+    }
+    name
   end
 end
 
@@ -76,7 +83,7 @@ class Ramp < Term
 
       #{declare("fix16_t", "void")}
       {
-        return #{name}_accum += #{@delta.create};
+        return #{name}_accum += #{@delta.create}();
       }
     }
     name
@@ -167,8 +174,8 @@ class Scale < Term
       #{declare("void", "struct point *p")}
       {
         #{@term.create}(p);
-        p->x = times_signed(p->x, #{@xscale.create});
-        p->y = times_signed(p->y, #{@yscale.create});
+        p->x = times_signed(p->x, #{@xscale.create}());
+        p->y = times_signed(p->y, #{@yscale.create}());
       }
     }
     name
