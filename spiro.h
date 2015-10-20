@@ -1,4 +1,6 @@
 
+      static fix16_t ramp_0_accum ;
+
       
       static __inline__ fix16_t
       ramp_0(void)
@@ -8,10 +10,11 @@
       ramp_0(void)
     
       {
-        static fix16_t accum ;
-        return accum += 327;
+        return ramp_0_accum += 327;
       }
     
+
+      static fix16_t ramp_1_accum = fix(0.5);
 
       
       static __inline__ fix16_t
@@ -22,8 +25,7 @@
       ramp_1(void)
     
       {
-        static fix16_t accum = fix(0.5);
-        return accum += 1;
+        return ramp_1_accum += 1;
       }
     
 
@@ -43,6 +45,8 @@
       }
     
 
+      static fix16_t ramp_2_accum ;
+
       
       static __inline__ fix16_t
       ramp_2(void)
@@ -52,10 +56,11 @@
       ramp_2(void)
     
       {
-        static fix16_t accum ;
-        return accum += -360;
+        return ramp_2_accum += -360;
       }
     
+
+      static fix16_t ramp_3_accum = fix(0.5);
 
       
       static __inline__ fix16_t
@@ -66,8 +71,7 @@
       ramp_3(void)
     
       {
-        static fix16_t accum = fix(0.5);
-        return accum += 0;
+        return ramp_3_accum += 0;
       }
     
 

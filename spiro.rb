@@ -68,10 +68,11 @@ class Ramp < Term
 
   def create
     puts %Q{
+      static fix16_t #{name}_accum #{@init != 0 ? "= #{@init}" : ""};
+
       #{declare("fix16_t", "void")}
       {
-        static fix16_t accum #{@init != 0 ? "= #{@init}" : ""};
-        return accum += #{@delta.create};
+        return #{name}_accum += #{@delta.create};
       }
     }
     name
