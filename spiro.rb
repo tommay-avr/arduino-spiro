@@ -42,6 +42,10 @@ class Term
     end
   end
 
+  def %(angle)
+    Rotate.new(term: self, angle: angle)
+  end
+
   def self.next_number
     @number ||= 0
   ensure
@@ -171,6 +175,33 @@ class Scale < Term
   end
 end
 
+class Rotate < Term
+  def initialize(term:, angle:)
+    super()
+    @term = term
+    @angle = maybe_constant(angle)
+  end
+
+  def create
+    puts %Q{
+      #{declare("void", "struct point *p")}
+      {
+        #{@term.create}(p);
+        fix16_t angle = #{@angle.create}();
+        // What if we rotate something with a weird phase?  Probably need to
+        // ensure s^2 + c^2 = 1.  Except what if they're both 0?
+        fix16_t s = zsin(angle);
+        fix16_t c = zcos(angle);
+        fix16_t x = times_signed(p->x, c) - times_signed(p->y, s);
+        fix16_t y = times_signed(p->x, s) + times_signed(p->y, c);
+        p->x = x * 2;
+        p->y = y * 2;
+      }
+    }
+    name
+  end
+end
+
 def fix(n)
   "fix(#{n})"
 end
@@ -185,7 +216,7 @@ spiro =
     angle: Ramp.new(delta: -360),
     phase: Ramp.new(init: fix(0.5), delta: 0),
     fx: "zsin",
-    fy: "zsin") * fix(0.5)
+    fy: "zsin") * fix(0.5) # % DDA.new(n: fix(0.1), ticks: 1000)
 
 name = spiro.create
 puts "#define spiro #{name}"
