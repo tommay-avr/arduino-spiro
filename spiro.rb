@@ -79,6 +79,32 @@ class Ramp < Term
   end
 end
 
+class DDA < Term
+  def initialize(n:, ticks:)
+    super()
+    @n = n;
+    @ticks = ticks;
+  end
+
+  def create
+    puts %Q{
+      static fix16_t #{name}_n = 0;
+      static int16_t #{name}_error = 0;
+
+      #{declare("fix16_t", "void")}
+      {
+        #{name}_error += #{@n};
+        if (#{name}_error >= 0) {
+          #{name}_error -= #{@ticks};
+          #{name}_n++;
+        }
+        return #{name}_n;
+      }
+    }
+    name
+  end
+end
+
 class Quadrature < Term
   def initialize(angle:, phase: "fix(0.5)", fx:, fy:)
     super()
