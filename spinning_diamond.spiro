@@ -1,0 +1,3 @@
+Diamond.new(
+  angle: Ramp.new(delta: 327)) %
+DDA.new(n: fix(0.1), ticks: 1000)

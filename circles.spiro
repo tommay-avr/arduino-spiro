@@ -1,0 +1,6 @@
+Circle.new(
+  angle: Ramp.new(delta: 327),
+  phase: Ramp.new(init: fix(0.5), delta: 1)) +
+Circle.new(
+  angle: Ramp.new(delta: -360),
+  phase: Ramp.new(init: fix(0.5), delta: 0)) * fix(0.5) # % DDA.new(n: fix(0.1), ticks: 1000)

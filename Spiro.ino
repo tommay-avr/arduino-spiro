@@ -45,7 +45,7 @@ loop() {
   int count = 0;
   for (;;) {
     struct point p;
-    spiro(&p);
+    circles_main(&p);
 #if 1
     if (++count == 1000) {
       count = 0;

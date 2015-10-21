@@ -2,7 +2,7 @@
 
 class Term
   def initialize
-    @name = "#{self.class.name.downcase}_#{self.class.next_number}"
+    @name = "#{prefix}_#{self.class.name.downcase}_#{self.class.next_number}"
   end
 
   def name
@@ -224,20 +224,17 @@ def fix(n)
   "fix(#{n})"
 end
 
-spiro =
-  Circle.new(
-    angle: Ramp.new(delta: 327),
-    phase: Ramp.new(init: fix(0.5), delta: 1)) +
-  Circle.new(
-    angle: Ramp.new(delta: -360),
-    phase: Ramp.new(init: fix(0.5), delta: 0)) * fix(0.5) # % DDA.new(n: fix(0.1), ticks: 1000)
+ARGV.each do |filename|
+  basename = File.basename(filename, ".spiro")
 
-spinning_diamond =
-  Diamond.new(
-    angle: Ramp.new(delta: 327)) %
-  DDA.new(n: fix(0.1), ticks: 1000)
+  # prefix is a "global" method that lets the initializers include the
+  # filename into their object's names without having to pass it
+  # around everywhere.  Nasty but easy.
+  #
+  define_method(:prefix) do
+    basename
+  end
 
-spinning_diamond.create
-
-name = spiro.create
-puts "#define spiro #{name}"
+  main = eval(File.read(filename)).create
+  puts "#define #{prefix}_main #{main}"
+end
