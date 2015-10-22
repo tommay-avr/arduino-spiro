@@ -177,7 +177,7 @@ class Scale < Term
     super()
     @term = term
     @xscale = maybe_constant(xscale)
-    @yscale = maybe_constant(yscale || xscale)
+    @yscale = yscale && maybe_constant(yscale)
   end
 
   def create
@@ -185,8 +185,10 @@ class Scale < Term
       #{declare("void", "struct point *p")}
       {
         #{@term.create}(p);
-        p->x = times_signed(p->x, #{@xscale.create}());
-        p->y = times_signed(p->y, #{@yscale.create}());
+        fix16_t xscale = #{@xscale.create}();
+        p->x = times_signed(p->x, xscale);
+        fix16_t yscale = #{@yscale ? "#{@yscale.create}()" : "xscale"};
+        p->y = times_signed(p->y, yscale);
       }
     }
     name

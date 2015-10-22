@@ -153,19 +153,6 @@
     
 
       
-      static __inline__ fix16_t
-      circles_constant_5(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_constant_5(void)
-    
-      {
-        return fix(0.5);
-      }
-    
-
-      
       static __inline__ void
       circles_scale_0(struct point *p)
       __attribute__((always_inline));
@@ -175,8 +162,10 @@
     
       {
         circles_circle_1(p);
-        p->x = times_signed(p->x, circles_constant_4());
-        p->y = times_signed(p->y, circles_constant_5());
+        fix16_t xscale = circles_constant_4();
+        p->x = times_signed(p->x, xscale);
+        fix16_t yscale = xscale;
+        p->y = times_signed(p->y, yscale);
       }
     
 
@@ -200,11 +189,11 @@
 
       
       static __inline__ fix16_t
-      spinning_diamond_constant_6(void)
+      spinning_diamond_constant_5(void)
       __attribute__((always_inline));
       
       static __inline__ fix16_t
-      spinning_diamond_constant_6(void)
+      spinning_diamond_constant_5(void)
     
       {
         return 327;
@@ -221,17 +210,17 @@
     
       {
         static fix16_t accum ;
-        return accum += spinning_diamond_constant_6();
+        return accum += spinning_diamond_constant_5();
       }
     
 
       
       static __inline__ fix16_t
-      spinning_diamond_constant_7(void)
+      spinning_diamond_constant_6(void)
       __attribute__((always_inline));
       
       static __inline__ fix16_t
-      spinning_diamond_constant_7(void)
+      spinning_diamond_constant_6(void)
     
       {
         return fix(0.5);
@@ -249,7 +238,7 @@
       {
         fix16_t angle = spinning_diamond_ramp_4();
         p->x = diamond(angle);
-        fix16_t phase = spinning_diamond_constant_7();
+        fix16_t phase = spinning_diamond_constant_6();
         p->y = diamond(angle + phase);
       }
     
