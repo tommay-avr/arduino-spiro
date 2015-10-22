@@ -1,11 +1,7 @@
+#include "inline.h"
 
       
-      static __inline__ fix16_t
-      circles_constant_0(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_constant_0(void)
+      INLINE(fix16_t, circles_constant_0, (void))
     
       {
         return 327;
@@ -13,12 +9,7 @@
     
 
       
-      static __inline__ fix16_t
-      circles_ramp_0(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_ramp_0(void)
+      INLINE(fix16_t, circles_ramp_0, (void))
     
       {
         static fix16_t accum ;
@@ -27,12 +18,7 @@
     
 
       
-      static __inline__ fix16_t
-      circles_constant_1(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_constant_1(void)
+      INLINE(fix16_t, circles_constant_1, (void))
     
       {
         return 1;
@@ -40,12 +26,7 @@
     
 
       
-      static __inline__ fix16_t
-      circles_ramp_1(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_ramp_1(void)
+      INLINE(fix16_t, circles_ramp_1, (void))
     
       {
         static fix16_t accum = fix(0.5);
@@ -54,12 +35,7 @@
     
 
       
-      static __inline__ void
-      circles_quadrature_0(struct point *p)
-      __attribute__((always_inline));
-      
-      static __inline__ void
-      circles_quadrature_0(struct point *p)
+      INLINE(void, circles_quadrature_0, (struct point *p))
     
       {
         fix16_t angle = circles_ramp_0();
@@ -70,12 +46,7 @@
     
 
       
-      static __inline__ fix16_t
-      circles_constant_2(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_constant_2(void)
+      INLINE(fix16_t, circles_constant_2, (void))
     
       {
         return -360;
@@ -83,12 +54,7 @@
     
 
       
-      static __inline__ fix16_t
-      circles_ramp_2(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_ramp_2(void)
+      INLINE(fix16_t, circles_ramp_2, (void))
     
       {
         static fix16_t accum ;
@@ -97,12 +63,7 @@
     
 
       
-      static __inline__ fix16_t
-      circles_constant_3(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_constant_3(void)
+      INLINE(fix16_t, circles_constant_3, (void))
     
       {
         return 0;
@@ -110,12 +71,7 @@
     
 
       
-      static __inline__ fix16_t
-      circles_ramp_3(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_ramp_3(void)
+      INLINE(fix16_t, circles_ramp_3, (void))
     
       {
         static fix16_t accum = fix(0.5);
@@ -124,12 +80,7 @@
     
 
       
-      static __inline__ void
-      circles_quadrature_1(struct point *p)
-      __attribute__((always_inline));
-      
-      static __inline__ void
-      circles_quadrature_1(struct point *p)
+      INLINE(void, circles_quadrature_1, (struct point *p))
     
       {
         fix16_t angle = circles_ramp_2();
@@ -140,12 +91,7 @@
     
 
       
-      static __inline__ fix16_t
-      circles_constant_4(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      circles_constant_4(void)
+      INLINE(fix16_t, circles_constant_4, (void))
     
       {
         return fix(0.5);
@@ -153,12 +99,7 @@
     
 
       
-      static __inline__ void
-      circles_scale_0(struct point *p)
-      __attribute__((always_inline));
-      
-      static __inline__ void
-      circles_scale_0(struct point *p)
+      INLINE(void, circles_scale_0, (struct point *p))
     
       {
         circles_quadrature_1(p);
@@ -170,12 +111,7 @@
     
 
       
-      static __inline__ void
-      circles_sum_0(struct point *p)
-      __attribute__((always_inline));
-      
-      static __inline__ void
-      circles_sum_0(struct point *p)
+      INLINE(void, circles_sum_0, (struct point *p))
     
       {
         circles_quadrature_0(p);
@@ -188,12 +124,7 @@
 #define circles_main circles_sum_0
 
       
-      static __inline__ fix16_t
-      spinning_diamond_constant_5(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      spinning_diamond_constant_5(void)
+      INLINE(fix16_t, spinning_diamond_constant_5, (void))
     
       {
         return 327;
@@ -201,12 +132,7 @@
     
 
       
-      static __inline__ fix16_t
-      spinning_diamond_ramp_4(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      spinning_diamond_ramp_4(void)
+      INLINE(fix16_t, spinning_diamond_ramp_4, (void))
     
       {
         static fix16_t accum ;
@@ -215,12 +141,7 @@
     
 
       
-      static __inline__ fix16_t
-      spinning_diamond_constant_6(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      spinning_diamond_constant_6(void)
+      INLINE(fix16_t, spinning_diamond_constant_6, (void))
     
       {
         return fix(0.5);
@@ -228,12 +149,7 @@
     
 
       
-      static __inline__ void
-      spinning_diamond_quadrature_2(struct point *p)
-      __attribute__((always_inline));
-      
-      static __inline__ void
-      spinning_diamond_quadrature_2(struct point *p)
+      INLINE(void, spinning_diamond_quadrature_2, (struct point *p))
     
       {
         fix16_t angle = spinning_diamond_ramp_4();
@@ -244,12 +160,7 @@
     
 
       
-      static __inline__ fix16_t
-      spinning_diamond_dda_0(void)
-      __attribute__((always_inline));
-      
-      static __inline__ fix16_t
-      spinning_diamond_dda_0(void)
+      INLINE(fix16_t, spinning_diamond_dda_0, (void))
     
       {
         static fix16_t n = 0;
@@ -265,12 +176,7 @@
     
 
       
-      static __inline__ void
-      spinning_diamond_rotate_0(struct point *p)
-      __attribute__((always_inline));
-      
-      static __inline__ void
-      spinning_diamond_rotate_0(struct point *p)
+      INLINE(void, spinning_diamond_rotate_0, (struct point *p))
     
       {
         spinning_diamond_quadrature_2(p);

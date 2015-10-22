@@ -11,12 +11,7 @@ class Term
 
   def declare(return_type, args)
     %Q{
-      static __inline__ #{return_type}
-      #{name}(#{args})
-      __attribute__((always_inline));
-      
-      static __inline__ #{return_type}
-      #{name}(#{args})
+      INLINE(#{return_type}, #{name}, (#{args}))
     }
   end
 
@@ -233,6 +228,8 @@ end
 def fix(n)
   "fix(#{n})"
 end
+
+puts %Q{#include "inline.h"}
 
 ARGV.each do |filename|
   basename = File.basename(filename, ".spiro")
