@@ -48,6 +48,45 @@ class Term
   end
 end
 
+class Knob < Term
+  def initialize(channel, lo: 0, hi: 65535, fractional: false)
+    super()
+    @channel = channel
+    @lo = lo
+    @hi = hi;
+    @fractional = fractional
+    if !@fractional && ((@hi - @lo) << 6) >= 32768
+      raise "#{name} range is too wide."
+    end
+  end
+
+  def create
+    puts %Q{
+      #{declare("fix16_t", "void")}
+      {
+        extern int16_t adc_values[];
+        int16_t value = adc_values[#{@channel}];
+        #{@fractional ?
+          %Q{
+            // [-1.0, 1.0)
+            return value - 32768;
+          } :
+          %Q{
+            int16_t result;
+            MultiU16X16toH16Round(result, value, (#{@hi} - #{@lo}) << 6);
+            return result + #{@lo};
+          }
+        }
+      }
+    }
+    name
+  end
+end
+
+def knob(*args)
+  Knob.new(*args)
+end
+
 class Constant < Term
   def initialize(value:)
     super()

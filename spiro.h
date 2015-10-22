@@ -91,10 +91,15 @@
     
 
       
-      INLINE(fix16_t, circles_constant_4, (void))
+      INLINE(fix16_t, circles_knob_0, (void))
     
       {
-        return fix(0.5);
+        extern int16_t adc_values[];
+        int16_t value = adc_values[0];
+        
+            // [-1.0, 1.0)
+            return value - 32768;
+          
       }
     
 
@@ -103,7 +108,7 @@
     
       {
         circles_quadrature_1(p);
-        fix16_t xscale = circles_constant_4();
+        fix16_t xscale = circles_knob_0();
         p->x = times_signed(p->x, xscale);
         fix16_t yscale = xscale;
         p->y = times_signed(p->y, yscale);
@@ -124,7 +129,7 @@
 #define circles_main circles_sum_0
 
       
-      INLINE(fix16_t, spinning_diamond_constant_5, (void))
+      INLINE(fix16_t, spinning_diamond_constant_4, (void))
     
       {
         return 327;
@@ -136,12 +141,12 @@
     
       {
         static fix16_t accum ;
-        return accum += spinning_diamond_constant_5();
+        return accum += spinning_diamond_constant_4();
       }
     
 
       
-      INLINE(fix16_t, spinning_diamond_constant_6, (void))
+      INLINE(fix16_t, spinning_diamond_constant_5, (void))
     
       {
         return fix(0.5);
@@ -154,7 +159,7 @@
       {
         fix16_t angle = spinning_diamond_ramp_4();
         p->x = diamond(angle);
-        fix16_t phase = spinning_diamond_constant_6();
+        fix16_t phase = spinning_diamond_constant_5();
         p->y = diamond(angle + phase);
       }
     

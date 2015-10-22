@@ -3,4 +3,4 @@ circle(
   phase: ramp(init: fix(0.5), delta: 1)) +
 circle(
   angle: ramp(delta: -360),
-  phase: ramp(init: fix(0.5), delta: 0)) * fix(0.5) # % dda(n: fix(0.1), ticks: 1000)
+  phase: ramp(init: fix(0.5), delta: 0)) * knob(0, fractional: true) # % dda(n: fix(0.1), ticks: 1000)

@@ -30,6 +30,9 @@ struct point {
   fix16_t y;
 };
 
+#define ADC_CHANNELS 6
+static int adc_values[ADC_CHANNELS];
+
 // As n varies between -1 and 1, it is reflected back to stay within
 // -0.5 to 0.5.  Creates a diamond, with a corresponding quadrature
 // signal.
@@ -129,9 +132,6 @@ initialize() {
   // XXX PORTB |= _BV(PB1) | _BV(PB2) | _BV(PB5);
 }
 
-#define ADC_CHANNELS 6
-static int adc_value[ADC_CHANNELS];
-
 static void
 run() {
   int adc_channel = 0;
@@ -170,8 +170,8 @@ run() {
     // and start the next conversion.
 
     if ((ADCSRA & _BV(ADSC)) == 0) {
-      *((uint8_t *)(&adc_value[adc_channel]) + 0) = ADCL;
-      *((uint8_t *)(&adc_value[adc_channel]) + 1) = ADCH;
+      *((uint8_t *)(&adc_values[adc_channel]) + 0) = ADCL;
+      *((uint8_t *)(&adc_values[adc_channel]) + 1) = ADCH;
 
       if (++adc_channel == ADC_CHANNELS) {
 	adc_channel = 0;
