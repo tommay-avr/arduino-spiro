@@ -89,6 +89,10 @@ class Ramp < Term
   end
 end
 
+def ramp(*args)
+  Ramp.new(*args)
+end
+
 class DDA < Term
   def initialize(n:, ticks:)
     super()
@@ -115,6 +119,10 @@ class DDA < Term
   end
 end
 
+def dda(*args)
+  DDA.new(*args)
+end
+
 class Quadrature < Term
   def initialize(angle:, phase: "fix(0.5)", fx:, fy:)
     super()
@@ -138,16 +146,16 @@ class Quadrature < Term
   end
 end
 
-class Circle < Quadrature
-  def initialize(angle:, phase: "fix(0.5)")
-    super(angle: angle, phase: phase, fx: "zsin", fy: "zsin")
-  end
+def quadrature(*args)
+  Quadrature.new(*args)
 end
 
-class Diamond < Quadrature
-  def initialize(angle:, phase: "fix(0.5)")
-    super(angle: angle, phase: phase, fx: "diamond", fy: "diamond")
-  end
+def circle(angle:, phase: "fix(0.5)")
+  quadrature(angle: angle, phase: phase, fx: "zsin", fy: "zsin")
+end
+
+def diamond(angle:, phase: "fix(0.5)")
+  quadrature(angle: angle, phase: phase, fx: "diamond", fy: "diamond")
 end
 
 class Sum < Term

@@ -55,11 +55,11 @@
 
       
       static __inline__ void
-      circles_circle_0(struct point *p)
+      circles_quadrature_0(struct point *p)
       __attribute__((always_inline));
       
       static __inline__ void
-      circles_circle_0(struct point *p)
+      circles_quadrature_0(struct point *p)
     
       {
         fix16_t angle = circles_ramp_0();
@@ -125,11 +125,11 @@
 
       
       static __inline__ void
-      circles_circle_1(struct point *p)
+      circles_quadrature_1(struct point *p)
       __attribute__((always_inline));
       
       static __inline__ void
-      circles_circle_1(struct point *p)
+      circles_quadrature_1(struct point *p)
     
       {
         fix16_t angle = circles_ramp_2();
@@ -161,7 +161,7 @@
       circles_scale_0(struct point *p)
     
       {
-        circles_circle_1(p);
+        circles_quadrature_1(p);
         fix16_t xscale = circles_constant_4();
         p->x = times_signed(p->x, xscale);
         fix16_t yscale = xscale;
@@ -178,7 +178,7 @@
       circles_sum_0(struct point *p)
     
       {
-        circles_circle_0(p);
+        circles_quadrature_0(p);
         struct point p2;
         circles_scale_0(&p2);
         p->x += p2.x;
@@ -229,11 +229,11 @@
 
       
       static __inline__ void
-      spinning_diamond_diamond_0(struct point *p)
+      spinning_diamond_quadrature_2(struct point *p)
       __attribute__((always_inline));
       
       static __inline__ void
-      spinning_diamond_diamond_0(struct point *p)
+      spinning_diamond_quadrature_2(struct point *p)
     
       {
         fix16_t angle = spinning_diamond_ramp_4();
@@ -273,7 +273,7 @@
       spinning_diamond_rotate_0(struct point *p)
     
       {
-        spinning_diamond_diamond_0(p);
+        spinning_diamond_quadrature_2(p);
         fix16_t angle = spinning_diamond_dda_0();
         // What if we rotate something with a weird phase?  Probably need to
         // ensure s^2 + c^2 = 1.  Except what if they're both 0?
