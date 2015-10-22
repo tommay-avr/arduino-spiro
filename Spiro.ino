@@ -19,6 +19,8 @@
 #include "fixed_point.h"
 #include "zsin.h"
 
+#include "dac.h"
+
 #ifndef ARDUINO
 #include <stdio.h>
 #endif
@@ -89,6 +91,7 @@ loop() {
   for (;;) {
     struct point p;
     circles_main(&p);
+    write_dac(p.x, p.y);
 #if 1
     if (++count == 1000) {
       count = 0;
