@@ -136,6 +136,14 @@ initialize() {
   // PB5/SCK and PB3/MOSI are output.
 
   DDRB |= _BV(DDB5) | _BV(DDB3);
+
+  // Timer 2.  This is used to regulate when the DAC is updated.  It
+  // runs in CTC and we wait until it reaches OCR2A and is reset
+  // before updating the DAC.
+
+  TCCR2A = _BV(WGM21);		// CTC mode, pin not used.
+  TCCR2B = 3;			// Prescale /32, clk = 500kHz.
+  OCR2A = 103;			// Ticks @ 50kHz/104 = 4.8kHz.
 }
 
 static void
@@ -166,7 +174,11 @@ run() {
 
     // Wait for the timer tick.
 
-    //loop_until_bit_is_clear(XXX, XXX);
+    loop_until_bit_is_set(TIFR2, OCF2A);
+
+    // Clear the tick.
+
+    TIFR2 |= _BV(OCF2A);
 
     // Write the point to the DAC.
 
