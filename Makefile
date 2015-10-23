@@ -1,2 +1,4 @@
-spiro.h:
+spiro.h: FORCE
 	./spiro.rb *.spiro >$@
+
+FORCE:
