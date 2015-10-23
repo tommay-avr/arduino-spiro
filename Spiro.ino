@@ -48,6 +48,9 @@ diamond(fix16_t n) {
 
 #include "spiro.h"
 
+static void initialize(void);
+static void run(void);
+
 #ifdef ARDUINO
 
 static unsigned long then;
@@ -55,7 +58,28 @@ static unsigned long then;
 void
 setup() {
   Serial.begin(9600);
+  initialize();
+  run();
+}
 
+void
+loop() {}
+
+#else
+
+int
+main(int argc, char **argv) {
+  for (;;) {
+    struct point p;
+    spiro(&p);
+    printf("%d, %d\n", p.x, p.y);
+  }
+}
+
+#endif
+
+static void
+initialize() {
   // SPI.  Enable as master, set mode, clk = fOsc/2 (max).
 
   SPCR = _BV(SPE) | _BV(MSTR) | _BV(CPHA) | _BV(CPOL);
@@ -69,6 +93,26 @@ setup() {
   // (default) and digital input buffers disabled.
 
   DIDR0 |= _BV(ADC0D)|_BV(ADC1D)|_BV(ADC2D)|_BV(ADC3D)|_BV(ADC4D)|_BV(ADC5D);
+
+  // ADC setup:
+
+  // External AVcc reference.
+
+  ADMUX |= _BV(REFS0);
+
+  // Left adjust ADC result in ADCH:ADCL.  It's just easier to deal
+  // with that way.
+
+  ADMUX |= _BV(ADLAR);
+
+  // ADC clock prescaler is /128.  ADC frequency is 16MHz / 128 =
+  // 125kHz (50-200kHz).
+  
+  ADCSRA = 7;
+
+  // Enable the ADC.
+
+  ADCSRA |= _BV(ADEN);
 
   // PB2/nSS is the DAC chip select.  Output high.
 
@@ -85,13 +129,21 @@ setup() {
   // XXX PORTB |= _BV(PB1) | _BV(PB2) | _BV(PB5);
 }
 
-void
-loop() {
+#define ADC_CHANNELS 6
+static int adc_value[ADC_CHANNELS];
+
+static void
+run() {
+  int adc_channel = 0;
+
   int count = 0;
+
   for (;;) {
+    // Calculate the next point.
+
     struct point p;
     circles_main(&p);
-    write_dac(p.x, p.y);
+
 #if 1
     if (++count == 1000) {
       count = 0;
@@ -105,18 +157,28 @@ loop() {
     Serial.print(", ");
     Serial.println(p.y);
 #endif
+
+    // Wait for the timer tick.
+
+    //loop_until_bit_is_clear(XXX, XXX);
+
+    // Write the point to the DAC.
+
+    write_dac(p.x, p.y);
+
+    // If the ADC is done then read the value, advance the channel,
+    // and start the next conversion.
+
+    if ((ADCSRA & _BV(ADSC)) == 0) {
+      *((uint8_t *)(&adc_value[adc_channel]) + 0) = ADCL;
+      *((uint8_t *)(&adc_value[adc_channel]) + 1) = ADCH;
+
+      if (++adc_channel == ADC_CHANNELS) {
+	adc_channel = 0;
+      }
+
+      ADMUX = _BV(REFS1) | _BV(ADLAR) | adc_channel;
+      ADCSRA |= _BV(ADSC);
+    }
   }
 }
-
-#else
-
-int
-main(int argc, char **argv) {
-  for (;;) {
-    struct point p;
-    spiro(&p);
-    printf("%d, %d\n", p.x, p.y);
-  }
-}
-
-#endif
