@@ -83,11 +83,6 @@ main(int argc, char **argv) {
 
 static void
 initialize() {
-  // SPI.  Enable as master, set mode, clk = fOsc/2 (max).
-
-  SPCR = _BV(SPE) | _BV(MSTR) | _BV(CPHA) | _BV(CPOL);
-  SPSR = _BV(SPI2X);
-
   // Encoder.  Pins PD6 and PD7 are input (default) with pull-ups enabled.
 
   PORTD = _BV(PORTD6) | _BV(PORTD7);
@@ -117,7 +112,7 @@ initialize() {
 
   ADCSRA |= _BV(ADEN);
 
-  // PB2/nSS is the DAC chip select.  Output high.
+  // nSS/PB2 is the DAC chip select.  Output high.
 
   DDRB |= _BV(DDB2);		// PB2 is output.
   PORTB |= _BV(PORTB2);		// PB2 is high.
@@ -130,6 +125,17 @@ initialize() {
   // Enable pull-ups on unused/floating input pins.
 
   // XXX PORTB |= _BV(PB1) | _BV(PB2) | _BV(PB5);
+
+  // SPI.  Enable as master, set mode, clk = fOsc/2 (max).  Enable
+  // master after setting nSS/PB2 to output otherwise if nSS is input
+  // low the chip will switch to slave mode.
+
+  SPCR = _BV(SPE) | _BV(MSTR) | _BV(CPHA) | _BV(CPOL);
+  SPSR = _BV(SPI2X);
+
+  // PB5/SCK and PB3/MOSI are output.
+
+  DDRB |= _BV(DDB5) | _BV(DDB3);
 }
 
 static void
