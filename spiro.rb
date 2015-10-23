@@ -64,7 +64,6 @@ class Knob < Term
     puts %Q{
       #{declare("fix16_t", "void")}
       {
-        extern int16_t adc_values[];
         int16_t value = adc_values[#{@channel}];
         #{@fractional ?
           %Q{

@@ -94,7 +94,6 @@
       INLINE(fix16_t, circles_knob_0, (void))
     
       {
-        extern int16_t adc_values[];
         int16_t value = adc_values[0];
         
             // [-1.0, 1.0)
