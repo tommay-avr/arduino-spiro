@@ -13,17 +13,9 @@
 
 #pragma GCC optimize ("-O2")
 
-#include <avr/io.h>
-#include <avr/cpufunc.h>	// _NOP
 #include <stdint.h>
 #include "fixed_point.h"
 #include "zsin.h"
-
-#include "dac.h"
-
-#ifndef ARDUINO
-#include <stdio.h>
-#endif
 
 struct point {
   fix16_t x;
@@ -51,10 +43,14 @@ diamond(fix16_t n) {
 
 #include "spiro.h"
 
+#ifdef ARDUINO
+
+#include <avr/io.h>
+#include <avr/cpufunc.h>	// _NOP
+#include "dac.h"
+
 static void initialize(void);
 static void run(void);
-
-#ifdef ARDUINO
 
 static unsigned long then;
 
@@ -67,19 +63,6 @@ setup() {
 
 void
 loop() {}
-
-#else
-
-int
-main(int argc, char **argv) {
-  for (;;) {
-    struct point p;
-    spiro(&p);
-    printf("%d, %d\n", p.x, p.y);
-  }
-}
-
-#endif
 
 static void
 initialize() {
@@ -201,3 +184,18 @@ run() {
     }
   }
 }
+
+#else
+
+#include <stdio.h>
+
+int
+main(int argc, char **argv) {
+  for (;;) {
+    struct point p;
+    circles_main(&p);
+    printf("%d, %d\n", p.x, p.y);
+  }
+}
+
+#endif
