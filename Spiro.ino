@@ -180,9 +180,10 @@ run() {
 
     TIFR2 |= _BV(OCF2A);
 
-    // Write the point to the DAC.
+    // Write the point to the DAC.  Convert from signed two's
+    // complement to unsigned.
 
-    write_dac(p.x, p.y);
+    write_dac(p.x + 0x8000, p.y + 0x8000);
 
     // If the ADC is done then read the value, advance the channel,
     // and start the next conversion.
