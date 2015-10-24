@@ -147,6 +147,10 @@ initialize() {
   TCCR2A = _BV(WGM21);		// CTC mode, pin not used.
   TCCR2B = 3;			// Prescale /32, clk = 500kHz.
   OCR2A = 103;			// Ticks @ 50kHz/104 = 4.8kHz.
+
+  // Make sure interrupts are enabled.
+
+  sei();
 }
 
 static void
