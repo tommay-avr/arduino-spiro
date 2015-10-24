@@ -17,11 +17,7 @@ zsin(fix16_t z)
 
   // Need to use an inner cast to unsigned because signed integer overflow
   // is undefined and this breaks with -O2.
-#if 1
   if ((fix16_t)((ufix16_t)z + fix(0.5)) < 0) {
-#else
-  if (z < fix(-0.5) || z > fix(0.5)) {
-#endif
     z = fix(1) - z;
   }
 
