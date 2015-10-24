@@ -2,7 +2,7 @@
   Pin usage:
 
   PC0 - PC5: analog in
-  PD6 - PD7: encoder in
+  PD6 - PD7 / PCINT22 - PCINT23: encoder in
   PB2: nSS out (DAC chip select)
   PB1: nLDAC out (DAC latch load)
 
@@ -49,6 +49,16 @@ diamond(fix16_t n) {
 #include <avr/cpufunc.h>	// _NOP
 #include "dac.h"
 
+static struct {
+  uint8_t last_a;
+  uint8_t last_b;
+  uint8_t stable_a;
+  uint8_t stable_b;
+} encoder;
+
+#define ENCODER_A() ((PIND & _BV(PD6)) != 0)
+#define ENCODER_B() ((PIND & _BV(PD7)) != 0)
+
 static void initialize(void);
 static void run(void);
 
@@ -69,6 +79,16 @@ initialize() {
   // Encoder.  Pins PD6 and PD7 are input (default) with pull-ups enabled.
 
   PORTD = _BV(PORTD6) | _BV(PORTD7);
+
+  // Enable their pin changfe interrupts.
+
+  PCMSK2 |= _BV(PCINT22) | _BV(PCINT23);
+  PCICR |= _BV(PCIE2);
+
+  // Set the current encoder pin states.
+
+  encoder.last_a = encoder.stable_a = ENCODER_A();
+  encoder.last_b = encoder.stable_b = ENCODER_B();
 
   // Knobs (PC0-5/ADC0-5) are input (default) with pull-ups disabled
   // (default) and digital input buffers disabled.
@@ -181,6 +201,73 @@ run() {
 
       ADMUX = _BV(REFS1) | _BV(ADLAR) | adc_channel;
       ADCSRA |= _BV(ADSC);
+    }
+  }
+}
+
+#define NUM_PROGRAMS (1)	// XXX
+
+// program is updated from an interrupt handler so it's volatile.  But
+// it doesn't need atomic access since it's a just a byte.
+
+volatile static uint8_t program;
+
+static __inline__ void ccw(void) {
+  uint8_t new_program = program - 1;
+  if (new_program == 0xFF) {
+    new_program = NUM_PROGRAMS - 1;
+  }
+  program = new_program;
+}
+
+static __inline__ void cw(void) {
+  uint8_t new_program = program + 1;
+  if (new_program == NUM_PROGRAMS) {
+    new_program = 0;
+  }
+  program = new_program;
+}
+
+// Handle encoder pin change interrupts.  This is intended to be
+// bounce-free, but may have issues depending on how the chip handles
+// interrrupts on signals that switch, then switch back quickly.
+
+ISR (PCINT2_vect) {
+  // Which pin changed?  Only one pin should change, the other should
+  // be stable.  So whichever pin changed, we update the stable state
+  // of the other pin.  But if the interrupting pin is unstable it
+  // might have changed back by the time we read it.  Then will it
+  // interrupt again so we can read the changed value?
+
+  uint8_t a = ENCODER_A();
+  uint8_t b = ENCODER_B();
+
+  if (encoder.last_a != a) {
+    encoder.last_a = a;
+    // a changed, so b is stable at its current value.
+    // Do cw or ccw if b's stable state has changed.
+    if (encoder.stable_b != b) {
+      encoder.stable_b = b;
+      if (encoder.stable_a == encoder.stable_b) {
+	ccw();
+      }
+      else {
+	cw();
+      }
+    }
+  }
+  if (encoder.last_b != b) {
+    encoder.last_b = b;
+    // b changed, so a is stable at its current value.
+    // Do cw or ccw if a's stable state has changed.
+    if (encoder.stable_a != a) {
+      encoder.stable_a = a;
+      if (encoder.stable_a == encoder.stable_b) {
+	cw();
+      }
+      else {
+	ccw();
+      }
     }
   }
 }
