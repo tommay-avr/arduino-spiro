@@ -23,6 +23,13 @@ struct point {
   fix16_t y;
 };
 
+// program is updated from an interrupt handler so it's volatile.  But
+// it doesn't need atomic access since it's a just a byte.
+
+volatile static uint8_t program;
+
+// One adc_value is updated each time through the main loop.
+
 #define ADC_CHANNELS 6
 static int adc_values[ADC_CHANNELS];
 
@@ -164,7 +171,7 @@ run() {
     // Calculate the next point.
 
     struct point p;
-    circles_main(&p);
+    programs[program](&p);
 
 #if 1
     if (++count == 1000) {
@@ -209,13 +216,6 @@ run() {
     }
   }
 }
-
-#define NUM_PROGRAMS (1)	// XXX
-
-// program is updated from an interrupt handler so it's volatile.  But
-// it doesn't need atomic access since it's a just a byte.
-
-volatile static uint8_t program;
 
 static __inline__ void ccw(void) {
   uint8_t new_program = program - 1;

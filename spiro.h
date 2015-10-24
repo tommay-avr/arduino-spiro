@@ -196,3 +196,8 @@
       }
     
 #define spinning_diamond_main spinning_diamond_rotate_0
+
+  #define NUM_PROGRAMS (2)
+  static void (*programs[])(struct point *p) = {
+    circles_main, spinning_diamond_main
+  };

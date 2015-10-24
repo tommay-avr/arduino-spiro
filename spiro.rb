@@ -269,7 +269,7 @@ end
 
 puts %Q{#include "inline.h"}
 
-ARGV.each do |filename|
+programs = ARGV.map do |filename|
   basename = File.basename(filename, ".spiro")
 
   # prefix is a "global" method that lets the initializers include the
@@ -282,4 +282,13 @@ ARGV.each do |filename|
 
   main = eval(File.read(filename)).create
   puts "#define #{prefix}_main #{main}"
+
+  "#{prefix}_main"
 end
+
+puts %Q{
+  #define NUM_PROGRAMS (#{programs.size})
+  static void (*programs[])(struct point *p) = {
+    #{programs.join(", ")}
+  };
+}
