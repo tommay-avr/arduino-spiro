@@ -248,29 +248,28 @@ ISR (PCINT2_vect) {
 
   if (encoder.last_a != a) {
     encoder.last_a = a;
-    // a changed, so b is stable at its current value.
-    // Do cw or ccw if b's stable state has changed.
+    // a changed, so b is stable at its current value.  But only
+    // update b and fire ccw if this is the first time we've read this
+    // stable value.  I.e., a may be bouncing up and down, but we only
+    // want to update b once, and skip this stuff if we've already
+    // updated it.
     if (encoder.stable_b != b) {
       encoder.stable_b = b;
-      if (encoder.stable_a == encoder.stable_b) {
+      // Fire ccw if we've come back around to 00.
+      if (b == 0 && encoder.stable_a == 0) {
 	ccw();
-      }
-      else {
-	cw();
       }
     }
   }
+
+  // Same logic, but b changed and a is stable.
+
   if (encoder.last_b != b) {
     encoder.last_b = b;
-    // b changed, so a is stable at its current value.
-    // Do cw or ccw if a's stable state has changed.
     if (encoder.stable_a != a) {
       encoder.stable_a = a;
-      if (encoder.stable_a == encoder.stable_b) {
+      if (a == 0 && encoder.stable_b == 0) {
 	cw();
-      }
-      else {
-	ccw();
       }
     }
   }
