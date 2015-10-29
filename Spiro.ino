@@ -1,12 +1,13 @@
 /*
   Pin usage:
 
-  PC0 - PC5: analog in
-  PD6 - PD7 / PCINT22 - PCINT23: encoder in
-  PB2: nSS out (DAC chip select)
-  PB1: nLDAC out (DAC latch load)
+  PC0 - PC5: analog in [analog 0 - 5]
+  PD6 - PD7 / PCINT22 - PCINT23: encoder in [pin 6/7]
+  PB2: nSS out (DAC chip select) [pin 10]
+  PB1: nLDAC out (DAC latch load) [pin 9]
+  PB3: MOSI [pin 11]
+  PB5: SCK [pin 13]
 
-  PB2 - PB5: SPI
   PB6 - PB7: xtal
   PC6: nRESET
 */
