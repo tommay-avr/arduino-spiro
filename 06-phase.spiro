@@ -1,0 +1,3 @@
+circle(
+  angle: ramp(delta: 327),
+  phase: knob(0, fractional: true))

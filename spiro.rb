@@ -271,13 +271,14 @@ puts %Q{#include "inline.h"}
 
 programs = ARGV.map do |filename|
   basename = File.basename(filename, ".spiro")
+  prefix = "prg_#{basename}".gsub(/-/, "_")
 
   # prefix is a "global" method that lets the initializers include the
   # filename into their object's names without having to pass it
   # around everywhere.  Nasty but easy.
   #
   define_method(:prefix) do
-    basename
+    prefix
   end
 
   main = eval(File.read(filename)).create
