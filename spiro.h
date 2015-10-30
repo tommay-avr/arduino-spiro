@@ -365,7 +365,89 @@
     
 #define prg_71_spin_diamond_main prg_71_spin_diamond_rotate_1
 
-  #define NUM_PROGRAMS (5)
+      
+      INLINE(fix16_t, prg_72_2xspin_diamond_constant_11, (void))
+    
+      {
+        return 327;
+      }
+    
+
+      
+      INLINE(fix16_t, prg_72_2xspin_diamond_ramp_8, (void))
+    
+      {
+        static fix16_t accum ;
+        return accum += prg_72_2xspin_diamond_constant_11();
+      }
+    
+
+      
+      INLINE(fix16_t, prg_72_2xspin_diamond_constant_12, (void))
+    
+      {
+        return fix(0.5);
+      }
+    
+
+      
+      INLINE(void, prg_72_2xspin_diamond_quadrature_6, (struct point *p))
+    
+      {
+        fix16_t angle = prg_72_2xspin_diamond_ramp_8();
+        p->x = diamond(angle);
+        fix16_t phase = prg_72_2xspin_diamond_constant_12();
+        p->y = diamond(angle + phase);
+      }
+    
+
+      
+      INLINE(fix16_t, prg_72_2xspin_diamond_knob_4, (void))
+    
+      {
+        int16_t value = adc_values[1];
+        
+            // [-1.0, 1.0)
+            return value - 32768;
+          
+      }
+    
+
+      
+      INLINE(fix16_t, prg_72_2xspin_diamond_constant_13, (void))
+    
+      {
+        return 2;
+      }
+    
+
+      
+      INLINE(fix16_t, prg_72_2xspin_diamond_scale1_0, (void))
+    
+      {
+        return prg_72_2xspin_diamond_knob_4() * prg_72_2xspin_diamond_constant_13();
+      }
+    
+
+      
+      INLINE(void, prg_72_2xspin_diamond_rotate_2, (struct point *p))
+    
+      {
+        prg_72_2xspin_diamond_quadrature_6(p);
+        fix16_t angle = prg_72_2xspin_diamond_scale1_0();
+        // What if we rotate something with a weird phase?  Probably need to
+        // ensure s^2 + c^2 = 1.  Except what if they're both 0?
+        fix16_t s = zsin(angle);
+        fix16_t c = zcos(angle);
+        fix16_t x = times_signed(p->x, c) - times_signed(p->y, s);
+        fix16_t y = times_signed(p->x, s) + times_signed(p->y, c);
+        p->x = x * 2;
+        p->y = y * 2;
+      }
+    
+#define prg_72_2xspin_diamond_main prg_72_2xspin_diamond_rotate_2
+
+  #define NUM_PROGRAMS (6)
   static void (*programs[])(struct point *p) = {
-    prg_00_circles_main, prg_05_magnitude_main, prg_06_phase_main, prg_70_spinning_diamond_main, prg_71_spin_diamond_main
+    prg_00_circles_main, prg_05_magnitude_main, prg_06_phase_main, prg_70_spinning_diamond_main, prg_71_spin_diamond_main, prg_72_2xspin_diamond_main
   };
