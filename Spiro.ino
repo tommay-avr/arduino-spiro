@@ -189,11 +189,13 @@ run() {
 
     // Wait for the timer tick.
 
+#if 0
     loop_until_bit_is_set(TIFR2, OCF2A);
 
     // Clear the tick.
 
     TIFR2 |= _BV(OCF2A);
+#endif
 
     // Write the point to the DAC.  Convert from signed two's
     // complement to unsigned.
