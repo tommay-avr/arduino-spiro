@@ -267,7 +267,7 @@ class Scale1 < Term1
     puts %Q{
       #{declare}
       {
-        return #{@term.create}() * #{@scale.create}();
+        return times_signed(#{@term.create}(), #{@scale.create}());
       }
     }
     name
