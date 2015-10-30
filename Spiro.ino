@@ -173,7 +173,7 @@ run() {
     struct point p;
     programs[program](&p);
 
-#if 1
+#if 0
     if (++count == 1000) {
       count = 0;
       unsigned long now = micros();
@@ -181,7 +181,7 @@ run() {
       then = now;
       Serial.println(delta);
     }
-#else
+#elif 0
     Serial.print(p.x);
     Serial.print(", ");
     Serial.println(p.y);
