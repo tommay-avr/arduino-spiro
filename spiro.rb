@@ -324,6 +324,27 @@ class Rotate < Term2
   end
 end
 
+class Sin < Term1
+  def initialize(term:)
+    super()
+    @term = term
+  end
+
+  def create
+    puts %Q{
+      #{declare}
+      {
+        return zsin(#{@term.create}()) * 2;
+      }
+    }
+    name
+  end
+end
+
+def sin(term)
+  Sin.new(term: term)
+end
+
 def fix(n)
   "fix(#{n})"
 end

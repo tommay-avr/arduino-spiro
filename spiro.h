@@ -94,7 +94,7 @@
       INLINE(fix16_t, prg_00_circles_knob_0, (void))
     
       {
-        int16_t value = adc_values[0];
+        uint16_t value = adc_values[0];
         
             // [-1.0, 1.0)
             return value - 32768;
@@ -131,7 +131,7 @@
       INLINE(fix16_t, prg_01_circle_knob_1, (void))
     
       {
-        int16_t value = adc_values[3];
+        uint16_t value = adc_values[3];
         
             int16_t result;
             MultiU16X16toH16Round(result, value, 20 - 0);
@@ -173,7 +173,7 @@
       INLINE(fix16_t, prg_02_spiro_knob_2, (void))
     
       {
-        int16_t value = adc_values[3];
+        uint16_t value = adc_values[3];
         
             int16_t result;
             MultiU16X16toH16Round(result, value, 725 - 500);
@@ -214,7 +214,7 @@
       INLINE(fix16_t, prg_02_spiro_knob_3, (void))
     
       {
-        int16_t value = adc_values[0];
+        uint16_t value = adc_values[0];
         
             // [-1.0, 1.0)
             return value - 32768;
@@ -274,7 +274,7 @@
       INLINE(fix16_t, prg_02_spiro_knob_4, (void))
     
       {
-        int16_t value = adc_values[1];
+        uint16_t value = adc_values[1];
         
             // [-1.0, 1.0)
             return value - 32768;
@@ -283,11 +283,49 @@
     
 
       
+      INLINE(fix16_t, prg_02_spiro_knob_5, (void))
+    
+      {
+        uint16_t value = adc_values[4];
+        
+            int16_t result;
+            MultiU16X16toH16Round(result, value, 19 - 0);
+            return result + 0;
+          
+      }
+    
+
+      
+      INLINE(fix16_t, prg_02_spiro_ramp_7, (void))
+    
+      {
+        static fix16_t accum ;
+        return accum += prg_02_spiro_knob_5();
+      }
+    
+
+      
+      INLINE(fix16_t, prg_02_spiro_sin_0, (void))
+    
+      {
+        return zsin(prg_02_spiro_ramp_7()) * 2;
+      }
+    
+
+      
+      INLINE(fix16_t, prg_02_spiro_scale1_0, (void))
+    
+      {
+        return times_signed(prg_02_spiro_knob_4(), prg_02_spiro_sin_0());
+      }
+    
+
+      
       INLINE(void, prg_02_spiro_scale2_2, (struct point *p))
     
       {
         prg_02_spiro_quadrature_4(p);
-        fix16_t xscale = prg_02_spiro_knob_4();
+        fix16_t xscale = prg_02_spiro_scale1_0();
         p->x = times_signed(p->x, xscale);
         fix16_t yscale = xscale;
         p->y = times_signed(p->y, yscale);
@@ -316,7 +354,7 @@
     
 
       
-      INLINE(fix16_t, prg_05_magnitude_ramp_7, (void))
+      INLINE(fix16_t, prg_05_magnitude_ramp_8, (void))
     
       {
         static fix16_t accum ;
@@ -336,7 +374,7 @@
       INLINE(void, prg_05_magnitude_quadrature_5, (struct point *p))
     
       {
-        fix16_t angle = prg_05_magnitude_ramp_7();
+        fix16_t angle = prg_05_magnitude_ramp_8();
         p->x = zsin(angle);
         fix16_t phase = prg_05_magnitude_constant_9();
         p->y = zsin(angle + phase);
@@ -344,10 +382,10 @@
     
 
       
-      INLINE(fix16_t, prg_05_magnitude_knob_5, (void))
+      INLINE(fix16_t, prg_05_magnitude_knob_6, (void))
     
       {
-        int16_t value = adc_values[0];
+        uint16_t value = adc_values[0];
         
             // [-1.0, 1.0)
             return value - 32768;
@@ -360,7 +398,7 @@
     
       {
         prg_05_magnitude_quadrature_5(p);
-        fix16_t xscale = prg_05_magnitude_knob_5();
+        fix16_t xscale = prg_05_magnitude_knob_6();
         p->x = times_signed(p->x, xscale);
         fix16_t yscale = xscale;
         p->y = times_signed(p->y, yscale);
@@ -377,7 +415,7 @@
     
 
       
-      INLINE(fix16_t, prg_06_phase_ramp_8, (void))
+      INLINE(fix16_t, prg_06_phase_ramp_9, (void))
     
       {
         static fix16_t accum ;
@@ -386,10 +424,10 @@
     
 
       
-      INLINE(fix16_t, prg_06_phase_knob_6, (void))
+      INLINE(fix16_t, prg_06_phase_knob_7, (void))
     
       {
-        int16_t value = adc_values[0];
+        uint16_t value = adc_values[0];
         
             // [-1.0, 1.0)
             return value - 32768;
@@ -401,9 +439,9 @@
       INLINE(void, prg_06_phase_quadrature_6, (struct point *p))
     
       {
-        fix16_t angle = prg_06_phase_ramp_8();
+        fix16_t angle = prg_06_phase_ramp_9();
         p->x = zsin(angle);
-        fix16_t phase = prg_06_phase_knob_6();
+        fix16_t phase = prg_06_phase_knob_7();
         p->y = zsin(angle + phase);
       }
     
@@ -418,7 +456,7 @@
     
 
       
-      INLINE(fix16_t, prg_70_spinning_diamond_ramp_9, (void))
+      INLINE(fix16_t, prg_70_spinning_diamond_ramp_10, (void))
     
       {
         static fix16_t accum ;
@@ -438,7 +476,7 @@
       INLINE(void, prg_70_spinning_diamond_quadrature_7, (struct point *p))
     
       {
-        fix16_t angle = prg_70_spinning_diamond_ramp_9();
+        fix16_t angle = prg_70_spinning_diamond_ramp_10();
         p->x = diamond(angle);
         fix16_t phase = prg_70_spinning_diamond_constant_12();
         p->y = diamond(angle + phase);
@@ -488,7 +526,7 @@
     
 
       
-      INLINE(fix16_t, prg_71_spin_diamond_ramp_10, (void))
+      INLINE(fix16_t, prg_71_spin_diamond_ramp_11, (void))
     
       {
         static fix16_t accum ;
@@ -508,7 +546,7 @@
       INLINE(void, prg_71_spin_diamond_quadrature_8, (struct point *p))
     
       {
-        fix16_t angle = prg_71_spin_diamond_ramp_10();
+        fix16_t angle = prg_71_spin_diamond_ramp_11();
         p->x = diamond(angle);
         fix16_t phase = prg_71_spin_diamond_constant_14();
         p->y = diamond(angle + phase);
@@ -516,10 +554,10 @@
     
 
       
-      INLINE(fix16_t, prg_71_spin_diamond_knob_7, (void))
+      INLINE(fix16_t, prg_71_spin_diamond_knob_8, (void))
     
       {
-        int16_t value = adc_values[1];
+        uint16_t value = adc_values[1];
         
             // [-1.0, 1.0)
             return value - 32768;
@@ -532,7 +570,7 @@
     
       {
         prg_71_spin_diamond_quadrature_8(p);
-        fix16_t angle = prg_71_spin_diamond_knob_7();
+        fix16_t angle = prg_71_spin_diamond_knob_8();
         // What if we rotate something with a weird phase?  Probably need to
         // ensure s^2 + c^2 = 1.  Except what if they're both 0?
         fix16_t s = zsin(angle);
@@ -554,7 +592,7 @@
     
 
       
-      INLINE(fix16_t, prg_72_2xspin_diamond_ramp_11, (void))
+      INLINE(fix16_t, prg_72_2xspin_diamond_ramp_12, (void))
     
       {
         static fix16_t accum ;
@@ -574,7 +612,7 @@
       INLINE(void, prg_72_2xspin_diamond_quadrature_9, (struct point *p))
     
       {
-        fix16_t angle = prg_72_2xspin_diamond_ramp_11();
+        fix16_t angle = prg_72_2xspin_diamond_ramp_12();
         p->x = diamond(angle);
         fix16_t phase = prg_72_2xspin_diamond_constant_16();
         p->y = diamond(angle + phase);
@@ -582,10 +620,10 @@
     
 
       
-      INLINE(fix16_t, prg_72_2xspin_diamond_knob_8, (void))
+      INLINE(fix16_t, prg_72_2xspin_diamond_knob_9, (void))
     
       {
-        int16_t value = adc_values[1];
+        uint16_t value = adc_values[1];
         
             // [-1.0, 1.0)
             return value - 32768;
@@ -602,10 +640,10 @@
     
 
       
-      INLINE(fix16_t, prg_72_2xspin_diamond_scale1_0, (void))
+      INLINE(fix16_t, prg_72_2xspin_diamond_scale1_1, (void))
     
       {
-        return prg_72_2xspin_diamond_knob_8() * prg_72_2xspin_diamond_constant_17();
+        return times_signed(prg_72_2xspin_diamond_knob_9(), prg_72_2xspin_diamond_constant_17());
       }
     
 
@@ -614,7 +652,7 @@
     
       {
         prg_72_2xspin_diamond_quadrature_9(p);
-        fix16_t angle = prg_72_2xspin_diamond_scale1_0();
+        fix16_t angle = prg_72_2xspin_diamond_scale1_1();
         // What if we rotate something with a weird phase?  Probably need to
         // ensure s^2 + c^2 = 1.  Except what if they're both 0?
         fix16_t s = zsin(angle);
@@ -636,7 +674,7 @@
     
 
       
-      INLINE(fix16_t, prg_80_phase_diamond_ramp_12, (void))
+      INLINE(fix16_t, prg_80_phase_diamond_ramp_13, (void))
     
       {
         static fix16_t accum ;
@@ -645,10 +683,10 @@
     
 
       
-      INLINE(fix16_t, prg_80_phase_diamond_knob_9, (void))
+      INLINE(fix16_t, prg_80_phase_diamond_knob_10, (void))
     
       {
-        int16_t value = adc_values[4];
+        uint16_t value = adc_values[4];
         
             // [-1.0, 1.0)
             return value - 32768;
@@ -660,9 +698,9 @@
       INLINE(void, prg_80_phase_diamond_quadrature_10, (struct point *p))
     
       {
-        fix16_t angle = prg_80_phase_diamond_ramp_12();
+        fix16_t angle = prg_80_phase_diamond_ramp_13();
         p->x = diamond(angle);
-        fix16_t phase = prg_80_phase_diamond_knob_9();
+        fix16_t phase = prg_80_phase_diamond_knob_10();
         p->y = diamond(angle + phase);
       }
     
@@ -677,7 +715,7 @@
     
 
       
-      INLINE(fix16_t, prg_81_phased_diamond_ramp_13, (void))
+      INLINE(fix16_t, prg_81_phased_diamond_ramp_14, (void))
     
       {
         static fix16_t accum ;
@@ -705,7 +743,7 @@
       INLINE(void, prg_81_phased_diamond_quadrature_11, (struct point *p))
     
       {
-        fix16_t angle = prg_81_phased_diamond_ramp_13();
+        fix16_t angle = prg_81_phased_diamond_ramp_14();
         p->x = diamond(angle);
         fix16_t phase = prg_81_phased_diamond_dda_1();
         p->y = diamond(angle + phase);
