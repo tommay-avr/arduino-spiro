@@ -83,16 +83,13 @@ class Knob < Term1
     @lo = lo
     @hi = hi;
     @fractional = fractional
-    if !@fractional && ((@hi - @lo) << 6) >= 32768
-      raise "#{name} range is too wide."
-    end
   end
 
   def create
     puts %Q{
       #{declare}
       {
-        int16_t value = adc_values[#{@channel}];
+        uint16_t value = adc_values[#{@channel}];
         #{@fractional ?
           %Q{
             // [-1.0, 1.0)
@@ -100,7 +97,7 @@ class Knob < Term1
           } :
           %Q{
             int16_t result;
-            MultiU16X16toH16Round(result, value, (#{@hi} - #{@lo}) << 6);
+            MultiU16X16toH16Round(result, value, #{@hi} - #{@lo});
             return result + #{@lo};
           }
         }

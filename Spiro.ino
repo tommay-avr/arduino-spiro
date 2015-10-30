@@ -31,7 +31,7 @@ volatile static uint8_t program;
 // One adc_value is updated each time through the main loop.
 
 #define ADC_CHANNELS 6
-static int adc_values[ADC_CHANNELS];
+static uint16_t adc_values[ADC_CHANNELS];
 
 // As n varies between -1 and 1, it is reflected back to stay within
 // -0.5 to 0.5.  Creates a diamond, with a corresponding quadrature

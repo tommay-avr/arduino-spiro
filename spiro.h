@@ -134,7 +134,7 @@
         int16_t value = adc_values[3];
         
             int16_t result;
-            MultiU16X16toH16Round(result, value, (20 - 0) << 6);
+            MultiU16X16toH16Round(result, value, 20 - 0);
             return result + 0;
           
       }
@@ -176,8 +176,8 @@
         int16_t value = adc_values[3];
         
             int16_t result;
-            MultiU16X16toH16Round(result, value, (125 - 100) << 6);
-            return result + 100;
+            MultiU16X16toH16Round(result, value, 725 - 500);
+            return result + 500;
           
       }
     
