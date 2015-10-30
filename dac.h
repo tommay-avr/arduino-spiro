@@ -27,8 +27,9 @@ void,
 write_dac_channel,
 (uint16_t channel, uint16_t val))
 {
-  // Assert DAC chip select.
-  PORTB &= !_BV(PORTB2);
+  // Assert DAC chip select.  The chip select needs to be high at
+  // least 15nS between DAC writes.  No problem
+  PORTB &= ~_BV(PORTB2);
   uint16_t data = channel | DAC_GAIN_2X | DAC_ACTIVE | (val >> 4);
   write_spi_byte(data >> 8);
   write_spi_byte(data);
@@ -44,9 +45,11 @@ write_dac,
   write_dac_channel(DAC_CHANNEL_A, a);
   write_dac_channel(DAC_CHANNEL_B, b);
 #ifndef LDAC_IS_GROUNDED
-  // XXX Need tLS >= 40nS between nCS = 1 and nLDAC = 0.  Should be ok.
+  // Need tLS >= 40nS between nCS = 1 and nLDAC = 0.  Should be ok.
+  // Yes, we've got 108nS.
   PORTB &= ~_BV(PORTB1); // Latch the data.  Or just tie the pin to ground.
   // XXX Need nLDAC pulse width tLD >= 100nS.  I.e., a couple insn clocks.
+  // This gets 250nS.
   _NOP(); _NOP();
   PORTB |= _BV(PORTB1);
 #endif
