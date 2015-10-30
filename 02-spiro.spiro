@@ -1,0 +1,5 @@
+circle(
+  angle: ramp(delta: knob(3, lo:100, hi: 125))) * knob(0, fractional: true) +
+circle(
+  angle: ramp(delta: -360)) * knob(1, fractional: true)
+

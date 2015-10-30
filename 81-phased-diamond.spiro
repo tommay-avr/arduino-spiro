@@ -1,0 +1,4 @@
+diamond(
+  angle: ramp(delta: 327),
+  phase: dda(n: 100, ticks: 200)) %
+dda(n: fix(0.1), ticks: 1000)
