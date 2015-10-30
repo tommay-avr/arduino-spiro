@@ -103,7 +103,7 @@
     
 
       
-      INLINE(void, prg_00_circles_scale_0, (struct point *p))
+      INLINE(void, prg_00_circles_scale2_0, (struct point *p))
     
       {
         prg_00_circles_quadrature_1(p);
@@ -115,17 +115,17 @@
     
 
       
-      INLINE(void, prg_00_circles_sum_0, (struct point *p))
+      INLINE(void, prg_00_circles_sum2_0, (struct point *p))
     
       {
         prg_00_circles_quadrature_0(p);
         struct point p2;
-        prg_00_circles_scale_0(&p2);
+        prg_00_circles_scale2_0(&p2);
         p->x += p2.x;
         p->y += p2.y;
       }
     
-#define prg_00_circles_main prg_00_circles_sum_0
+#define prg_00_circles_main prg_00_circles_sum2_0
 
       
       INLINE(fix16_t, prg_05_magnitude_constant_4, (void))
@@ -176,7 +176,7 @@
     
 
       
-      INLINE(void, prg_05_magnitude_scale_1, (struct point *p))
+      INLINE(void, prg_05_magnitude_scale2_1, (struct point *p))
     
       {
         prg_05_magnitude_quadrature_2(p);
@@ -186,7 +186,7 @@
         p->y = times_signed(p->y, yscale);
       }
     
-#define prg_05_magnitude_main prg_05_magnitude_scale_1
+#define prg_05_magnitude_main prg_05_magnitude_scale2_1
 
       
       INLINE(fix16_t, prg_06_phase_constant_6, (void))

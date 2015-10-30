@@ -24,23 +24,6 @@ class Term
     end
   end
 
-  def +(term)
-    Sum.new(term1: self, term2: term)
-  end
-
-  def *(scale)
-    case scale
-    when Array
-      Scale.new(term: self, xscale: scale[0], yscale: scale[1])
-    else
-      Scale.new(term: self, xscale: scale)
-    end
-  end
-
-  def %(angle)
-    Rotate.new(term: self, angle: angle)
-  end
-
   def self.next_number
     @number ||= 0
   ensure
@@ -48,7 +31,52 @@ class Term
   end
 end
 
-class Knob < Term
+class Term1 < Term
+  def initialize
+    super()
+  end
+
+  def declare
+    super("fix16_t", "void")
+  end
+
+  def +(term)
+    Sum1.new(term1: self, term2: term)
+  end
+
+  def *(scale)
+    Scale1.new(term: self, scale: scale)
+  end
+end
+
+class Term2 < Term
+  def initialize
+    super()
+  end
+
+  def declare
+    super("void", "struct point *p")
+  end
+
+  def +(term)
+    Sum2.new(term1: self, term2: term)
+  end
+
+  def *(scale)
+    case scale
+    when Array
+      Scale2.new(term: self, xscale: scale[0], yscale: scale[1])
+    else
+      Scale2.new(term: self, xscale: scale)
+    end
+  end
+
+  def %(angle)
+    Rotate.new(term: self, angle: angle)
+  end
+end
+
+class Knob < Term1
   def initialize(channel, lo: 0, hi: 65535, fractional: false)
     super()
     @channel = channel
@@ -62,7 +90,7 @@ class Knob < Term
 
   def create
     puts %Q{
-      #{declare("fix16_t", "void")}
+      #{declare}
       {
         int16_t value = adc_values[#{@channel}];
         #{@fractional ?
@@ -86,7 +114,7 @@ def knob(*args)
   Knob.new(*args)
 end
 
-class Constant < Term
+class Constant < Term1
   def initialize(value:)
     super()
     @value = value
@@ -94,7 +122,7 @@ class Constant < Term
 
   def create
     puts %Q{
-      #{declare("fix16_t", "void")}
+      #{declare}
       {
         return #{@value};
       }
@@ -103,7 +131,7 @@ class Constant < Term
   end
 end
 
-class Ramp < Term
+class Ramp < Term1
   def initialize(init: 0, delta:)
     super()
     @init = init
@@ -112,7 +140,7 @@ class Ramp < Term
 
   def create
     puts %Q{
-      #{declare("fix16_t", "void")}
+      #{declare}
       {
         static fix16_t accum #{@init != 0 ? "= #{@init}" : ""};
         return accum += #{@delta.create}();
@@ -126,7 +154,7 @@ def ramp(*args)
   Ramp.new(*args)
 end
 
-class DDA < Term
+class DDA < Term1
   def initialize(n:, ticks:)
     super()
     @n = n;
@@ -135,7 +163,7 @@ class DDA < Term
 
   def create
     puts %Q{
-      #{declare("fix16_t", "void")}
+      #{declare}
       {
         static fix16_t n = 0;
         static int16_t error = 0;
@@ -156,7 +184,7 @@ def dda(*args)
   DDA.new(*args)
 end
 
-class Quadrature < Term
+class Quadrature < Term2
   def initialize(angle:, phase: "fix(0.5)", fx:, fy:)
     super()
     @angle = maybe_constant(angle)
@@ -167,7 +195,7 @@ class Quadrature < Term
 
   def create
     puts %Q{
-      #{declare("void", "struct point *p")}
+      #{declare}
       {
         fix16_t angle = #{@angle.create}();
         p->x = #{@fx}(angle);
@@ -191,7 +219,7 @@ def diamond(angle:, phase: "fix(0.5)")
   quadrature(angle: angle, phase: phase, fx: "diamond", fy: "diamond")
 end
 
-class Sum < Term
+class Sum1 < Term1
   def initialize(term1:, term2:)
     super()
     @term1 = term1
@@ -200,7 +228,25 @@ class Sum < Term
 
   def create
     puts %Q{
-      #{declare("void", "struct point *p")}
+      #{declare}
+      {
+        return #{@term1.create}() + #{@term2.create}();
+      }
+    }
+    name
+  end
+end
+
+class Sum2 < Term2
+  def initialize(term1:, term2:)
+    super()
+    @term1 = term1
+    @term2 = term2
+  end
+
+  def create
+    puts %Q{
+      #{declare}
       {
         #{@term1.create}(p);
         struct point p2;
@@ -213,7 +259,25 @@ class Sum < Term
   end
 end
 
-class Scale < Term
+class Scale1 < Term1
+  def initialize(term:, scale:)
+    super()
+    @term = term
+    @scale = maybe_constant(scale)
+  end
+
+  def create
+    puts %Q{
+      #{declare}
+      {
+        return #{@term.create}() * #{@scale.create}();
+      }
+    }
+    name
+  end
+end
+
+class Scale2 < Term2
   def initialize(term:, xscale:, yscale: nil)
     super()
     @term = term
@@ -223,7 +287,7 @@ class Scale < Term
 
   def create
     puts %Q{
-      #{declare("void", "struct point *p")}
+      #{declare}
       {
         #{@term.create}(p);
         fix16_t xscale = #{@xscale.create}();
@@ -236,7 +300,7 @@ class Scale < Term
   end
 end
 
-class Rotate < Term
+class Rotate < Term2
   def initialize(term:, angle:)
     super()
     @term = term
@@ -245,7 +309,7 @@ class Rotate < Term
 
   def create
     puts %Q{
-      #{declare("void", "struct point *p")}
+      #{declare}
       {
         #{@term.create}(p);
         fix16_t angle = #{@angle.create}();
