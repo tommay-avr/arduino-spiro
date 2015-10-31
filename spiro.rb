@@ -344,6 +344,38 @@ def sin(term)
   Sin.new(term: term)
 end
 
+class Mix < Term1
+  def initialize(mix:, term1:, term2:)
+    super()
+    @mix = mix
+    @term1 = maybe_constant(term1)
+    @term2 = maybe_constant(term2)
+  end
+
+  def create
+    puts %Q{
+      #{declare}
+      {
+        // Mix: [-1.0, 1.0):
+        // -1: 1.0*term1 + 0.0*term2
+        //  0: 0.5*tern1 + 0.5*term2
+        //  1: 0.0*term1 + 1.0*term2
+        //  (1-mix)/2 * term1 + (1+mix)/2 * term2
+        fix16_t mix = #{@mix.create}();
+        fix16_t term1 = #{@term1.create}();
+        fix16_t term2 = #{@term2.create}();
+        return times_signed((ufix16_t)(fix(1) - mix - 1) >> 1, term1) +
+               times_signed((ufix16_t)(fix(1) + mix) >> 1, term2);
+      }
+    }
+    name
+  end
+end
+
+def mix(*args)
+  Mix.new(*args)
+end
+
 def fix(n)
   "fix(#{n})"
 end
