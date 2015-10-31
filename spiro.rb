@@ -215,6 +215,29 @@ def diamond(angle:, phase: "fix(0.5)")
   quadrature(angle: angle, phase: phase, fx: "diamond", fy: "diamond")
 end
 
+class Lissajous < Term2
+  def initialize(x:, y:)
+    super()
+    @x = x
+    @y = y
+  end
+
+  def create
+    puts %Q{
+      #{declare}
+      {
+        p->x = #{@x.create}();
+        p->y = #{@y.create}();
+      }
+    }
+    name
+  end
+end
+
+def lissajous(*args)
+  Lissajous.new(*args)
+end
+
 class Sum1 < Term1
   def initialize(term1:, term2:)
     super()

@@ -1,0 +1,3 @@
+lissajous(
+  x: sin(ramp(delta: knob(0, lo: 50, hi: 500))),
+  y: sin(ramp(delta: knob(1, lo: 50, hi: 500)))) * [fix(0.5), fix(0.5)]

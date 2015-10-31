@@ -465,7 +465,105 @@
 #define prg_06_phase_main prg_06_phase_quadrature_6
 
       
-      INLINE(fix16_t, prg_70_spinning_diamond_constant_12, (void))
+      INLINE(fix16_t, prg_60_lissajous_knob_8, (void))
+    
+      {
+        uint16_t value = adc_values[0];
+        
+            int16_t result;
+            MultiU16X16toH16Round(result, value, 500 - 50);
+            return result + 50;
+          
+      }
+    
+
+      
+      INLINE(fix16_t, prg_60_lissajous_ramp_10, (void))
+    
+      {
+        static fix16_t accum ;
+        return accum += prg_60_lissajous_knob_8();
+      }
+    
+
+      
+      INLINE(fix16_t, prg_60_lissajous_sin_1, (void))
+    
+      {
+        return zsin(prg_60_lissajous_ramp_10()) * 2;
+      }
+    
+
+      
+      INLINE(fix16_t, prg_60_lissajous_knob_9, (void))
+    
+      {
+        uint16_t value = adc_values[1];
+        
+            int16_t result;
+            MultiU16X16toH16Round(result, value, 500 - 50);
+            return result + 50;
+          
+      }
+    
+
+      
+      INLINE(fix16_t, prg_60_lissajous_ramp_11, (void))
+    
+      {
+        static fix16_t accum ;
+        return accum += prg_60_lissajous_knob_9();
+      }
+    
+
+      
+      INLINE(fix16_t, prg_60_lissajous_sin_2, (void))
+    
+      {
+        return zsin(prg_60_lissajous_ramp_11()) * 2;
+      }
+    
+
+      
+      INLINE(void, prg_60_lissajous_lissajous_0, (struct point *p))
+    
+      {
+        p->x = prg_60_lissajous_sin_1();
+        p->y = prg_60_lissajous_sin_2();
+      }
+    
+
+      
+      INLINE(fix16_t, prg_60_lissajous_constant_12, (void))
+    
+      {
+        return fix(0.5);
+      }
+    
+
+      
+      INLINE(fix16_t, prg_60_lissajous_constant_13, (void))
+    
+      {
+        return fix(0.5);
+      }
+    
+
+      
+      INLINE(void, prg_60_lissajous_scale2_4, (struct point *p))
+    
+      {
+        prg_60_lissajous_lissajous_0(p);
+        fix16_t xscale = prg_60_lissajous_constant_12();
+        p->x = times_signed(p->x, xscale);
+        fix16_t yscale = prg_60_lissajous_constant_13();
+        p->y = times_signed(p->y, yscale);
+      }
+    
+#define prg_60_lissajous_main prg_60_lissajous_scale2_4
+
+      
+      INLINE(fix16_t, prg_70_spinning_diamond_constant_14, (void))
     
       {
         return 327;
@@ -473,16 +571,16 @@
     
 
       
-      INLINE(fix16_t, prg_70_spinning_diamond_ramp_10, (void))
+      INLINE(fix16_t, prg_70_spinning_diamond_ramp_12, (void))
     
       {
         static fix16_t accum ;
-        return accum += prg_70_spinning_diamond_constant_12();
+        return accum += prg_70_spinning_diamond_constant_14();
       }
     
 
       
-      INLINE(fix16_t, prg_70_spinning_diamond_constant_13, (void))
+      INLINE(fix16_t, prg_70_spinning_diamond_constant_15, (void))
     
       {
         return fix(0.5);
@@ -493,9 +591,9 @@
       INLINE(void, prg_70_spinning_diamond_quadrature_7, (struct point *p))
     
       {
-        fix16_t angle = prg_70_spinning_diamond_ramp_10();
+        fix16_t angle = prg_70_spinning_diamond_ramp_12();
         p->x = diamond(angle);
-        fix16_t phase = prg_70_spinning_diamond_constant_13();
+        fix16_t phase = prg_70_spinning_diamond_constant_15();
         p->y = diamond(angle + phase);
       }
     
@@ -535,7 +633,7 @@
 #define prg_70_spinning_diamond_main prg_70_spinning_diamond_rotate_0
 
       
-      INLINE(fix16_t, prg_71_spin_diamond_constant_14, (void))
+      INLINE(fix16_t, prg_71_spin_diamond_constant_16, (void))
     
       {
         return 327;
@@ -543,16 +641,16 @@
     
 
       
-      INLINE(fix16_t, prg_71_spin_diamond_ramp_11, (void))
+      INLINE(fix16_t, prg_71_spin_diamond_ramp_13, (void))
     
       {
         static fix16_t accum ;
-        return accum += prg_71_spin_diamond_constant_14();
+        return accum += prg_71_spin_diamond_constant_16();
       }
     
 
       
-      INLINE(fix16_t, prg_71_spin_diamond_constant_15, (void))
+      INLINE(fix16_t, prg_71_spin_diamond_constant_17, (void))
     
       {
         return fix(0.5);
@@ -563,15 +661,15 @@
       INLINE(void, prg_71_spin_diamond_quadrature_8, (struct point *p))
     
       {
-        fix16_t angle = prg_71_spin_diamond_ramp_11();
+        fix16_t angle = prg_71_spin_diamond_ramp_13();
         p->x = diamond(angle);
-        fix16_t phase = prg_71_spin_diamond_constant_15();
+        fix16_t phase = prg_71_spin_diamond_constant_17();
         p->y = diamond(angle + phase);
       }
     
 
       
-      INLINE(fix16_t, prg_71_spin_diamond_knob_8, (void))
+      INLINE(fix16_t, prg_71_spin_diamond_knob_10, (void))
     
       {
         uint16_t value = adc_values[1];
@@ -587,7 +685,7 @@
     
       {
         prg_71_spin_diamond_quadrature_8(p);
-        fix16_t angle = prg_71_spin_diamond_knob_8();
+        fix16_t angle = prg_71_spin_diamond_knob_10();
         // What if we rotate something with a weird phase?  Probably need to
         // ensure s^2 + c^2 = 1.  Except what if they're both 0?
         fix16_t s = zsin(angle);
@@ -601,7 +699,7 @@
 #define prg_71_spin_diamond_main prg_71_spin_diamond_rotate_1
 
       
-      INLINE(fix16_t, prg_72_2xspin_diamond_constant_16, (void))
+      INLINE(fix16_t, prg_72_2xspin_diamond_constant_18, (void))
     
       {
         return 327;
@@ -609,16 +707,16 @@
     
 
       
-      INLINE(fix16_t, prg_72_2xspin_diamond_ramp_12, (void))
+      INLINE(fix16_t, prg_72_2xspin_diamond_ramp_14, (void))
     
       {
         static fix16_t accum ;
-        return accum += prg_72_2xspin_diamond_constant_16();
+        return accum += prg_72_2xspin_diamond_constant_18();
       }
     
 
       
-      INLINE(fix16_t, prg_72_2xspin_diamond_constant_17, (void))
+      INLINE(fix16_t, prg_72_2xspin_diamond_constant_19, (void))
     
       {
         return fix(0.5);
@@ -629,15 +727,15 @@
       INLINE(void, prg_72_2xspin_diamond_quadrature_9, (struct point *p))
     
       {
-        fix16_t angle = prg_72_2xspin_diamond_ramp_12();
+        fix16_t angle = prg_72_2xspin_diamond_ramp_14();
         p->x = diamond(angle);
-        fix16_t phase = prg_72_2xspin_diamond_constant_17();
+        fix16_t phase = prg_72_2xspin_diamond_constant_19();
         p->y = diamond(angle + phase);
       }
     
 
       
-      INLINE(fix16_t, prg_72_2xspin_diamond_knob_9, (void))
+      INLINE(fix16_t, prg_72_2xspin_diamond_knob_11, (void))
     
       {
         uint16_t value = adc_values[1];
@@ -649,7 +747,7 @@
     
 
       
-      INLINE(fix16_t, prg_72_2xspin_diamond_constant_18, (void))
+      INLINE(fix16_t, prg_72_2xspin_diamond_constant_20, (void))
     
       {
         return 2;
@@ -660,7 +758,7 @@
       INLINE(fix16_t, prg_72_2xspin_diamond_scale1_0, (void))
     
       {
-        return times_signed(prg_72_2xspin_diamond_knob_9(), prg_72_2xspin_diamond_constant_18());
+        return times_signed(prg_72_2xspin_diamond_knob_11(), prg_72_2xspin_diamond_constant_20());
       }
     
 
@@ -683,7 +781,7 @@
 #define prg_72_2xspin_diamond_main prg_72_2xspin_diamond_rotate_2
 
       
-      INLINE(fix16_t, prg_80_phase_diamond_constant_19, (void))
+      INLINE(fix16_t, prg_80_phase_diamond_constant_21, (void))
     
       {
         return 327;
@@ -691,16 +789,16 @@
     
 
       
-      INLINE(fix16_t, prg_80_phase_diamond_ramp_13, (void))
+      INLINE(fix16_t, prg_80_phase_diamond_ramp_15, (void))
     
       {
         static fix16_t accum ;
-        return accum += prg_80_phase_diamond_constant_19();
+        return accum += prg_80_phase_diamond_constant_21();
       }
     
 
       
-      INLINE(fix16_t, prg_80_phase_diamond_knob_10, (void))
+      INLINE(fix16_t, prg_80_phase_diamond_knob_12, (void))
     
       {
         uint16_t value = adc_values[4];
@@ -715,16 +813,16 @@
       INLINE(void, prg_80_phase_diamond_quadrature_10, (struct point *p))
     
       {
-        fix16_t angle = prg_80_phase_diamond_ramp_13();
+        fix16_t angle = prg_80_phase_diamond_ramp_15();
         p->x = diamond(angle);
-        fix16_t phase = prg_80_phase_diamond_knob_10();
+        fix16_t phase = prg_80_phase_diamond_knob_12();
         p->y = diamond(angle + phase);
       }
     
 #define prg_80_phase_diamond_main prg_80_phase_diamond_quadrature_10
 
       
-      INLINE(fix16_t, prg_81_phased_diamond_constant_20, (void))
+      INLINE(fix16_t, prg_81_phased_diamond_constant_22, (void))
     
       {
         return 327;
@@ -732,11 +830,11 @@
     
 
       
-      INLINE(fix16_t, prg_81_phased_diamond_ramp_14, (void))
+      INLINE(fix16_t, prg_81_phased_diamond_ramp_16, (void))
     
       {
         static fix16_t accum ;
-        return accum += prg_81_phased_diamond_constant_20();
+        return accum += prg_81_phased_diamond_constant_22();
       }
     
 
@@ -760,7 +858,7 @@
       INLINE(void, prg_81_phased_diamond_quadrature_11, (struct point *p))
     
       {
-        fix16_t angle = prg_81_phased_diamond_ramp_14();
+        fix16_t angle = prg_81_phased_diamond_ramp_16();
         p->x = diamond(angle);
         fix16_t phase = prg_81_phased_diamond_dda_1();
         p->y = diamond(angle + phase);
@@ -801,7 +899,7 @@
     
 #define prg_81_phased_diamond_main prg_81_phased_diamond_rotate_3
 
-  #define NUM_PROGRAMS (10)
+  #define NUM_PROGRAMS (11)
   static void (*programs[])(struct point *p) = {
-    prg_00_circles_main, prg_01_circle_main, prg_02_spiro_main, prg_05_magnitude_main, prg_06_phase_main, prg_70_spinning_diamond_main, prg_71_spin_diamond_main, prg_72_2xspin_diamond_main, prg_80_phase_diamond_main, prg_81_phased_diamond_main
+    prg_00_circles_main, prg_01_circle_main, prg_02_spiro_main, prg_05_magnitude_main, prg_06_phase_main, prg_60_lissajous_main, prg_70_spinning_diamond_main, prg_71_spin_diamond_main, prg_72_2xspin_diamond_main, prg_80_phase_diamond_main, prg_81_phased_diamond_main
   };
