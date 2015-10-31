@@ -77,12 +77,11 @@ class Term2 < Term
 end
 
 class Knob < Term1
-  def initialize(channel, lo: 0, hi: 65535, fractional: false)
+  def initialize(channel, lo: nil, hi: nil)
     super()
     @channel = channel
     @lo = lo
-    @hi = hi;
-    @fractional = fractional
+    @hi = hi
   end
 
   def create
@@ -90,15 +89,15 @@ class Knob < Term1
       #{declare}
       {
         uint16_t value = adc_values[#{@channel}];
-        #{@fractional ?
-          %Q{
-            // [-1.0, 1.0)
-            return value - 32768;
-          } :
+        #{(@lo && @hi) ?
           %Q{
             int16_t result;
             MultiU16X16toH16Round(result, value, #{@hi} - #{@lo});
             return result + #{@lo};
+          } :
+          %Q{
+            // [-1.0, 1.0)
+            return value - 32768;
           }
         }
       }

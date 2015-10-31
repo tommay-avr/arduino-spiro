@@ -1,1 +1,1 @@
-diamond(angle: ramp(delta: 327), phase: knob(4, fractional: true))
+diamond(angle: ramp(delta: 327), phase: knob(4))

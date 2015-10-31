@@ -1,9 +1,8 @@
 circle(
-  angle: ramp(delta: knob(3, lo: 500, hi: 725))) * knob(0, fractional: true) +
+  angle: ramp(delta: knob(3, lo: 500, hi: 725))) * knob(0) +
 circle(
   angle: ramp(delta: -360)) *
-  (knob(1, fractional: true) *
-    sin(ramp(delta: knob(4, lo: 0, hi: 19))))
+  (knob(1) * sin(ramp(delta: knob(4, lo: 0, hi: 19))))
 
 # points = sum of numerator + denominator in lowest terms.
 # By symmetry, it doesn't matter which circle is which in the ratio.
