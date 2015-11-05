@@ -15,6 +15,8 @@
 #pragma GCC optimize ("-O2")
 
 #include <stdint.h>
+#include "encoder.h"
+#include "inline.h"
 #include "fixed_point.h"
 #include "zsin.h"
 
@@ -22,6 +24,11 @@ struct point {
   fix16_t x;
   fix16_t y;
 };
+
+static struct encoder encoder;
+
+INLINE(uint8_t, encoder_a, (void)) { return read_encoder(PIND, PD6); }
+INLINE(uint8_t, encoder_b, (void)) { return read_encoder(PIND, PD7); }
 
 // program is updated from an interrupt handler so it's volatile.  But
 // it doesn't need atomic access since it's a just a byte.
@@ -57,16 +64,6 @@ diamond(fix16_t n) {
 #include <avr/cpufunc.h>	// _NOP
 #include "dac.h"
 
-static struct {
-  uint8_t last_a;
-  uint8_t last_b;
-  uint8_t stable_a;
-  uint8_t stable_b;
-} encoder;
-
-#define ENCODER_A() ((PIND & _BV(PD6)) != 0)
-#define ENCODER_B() ((PIND & _BV(PD7)) != 0)
-
 static void initialize(void);
 static void run(void);
 
@@ -95,8 +92,7 @@ initialize() {
 
   // Set the current encoder pin states.
 
-  encoder.last_a = encoder.stable_a = ENCODER_A();
-  encoder.last_b = encoder.stable_b = ENCODER_B();
+  init_encoder(&encoder, encoder_a, encoder_b);
 
   // Knobs (PC0-5/ADC0-5) are input (default) with pull-ups disabled
   // (default) and digital input buffers disabled.
@@ -235,47 +231,8 @@ static __inline__ void cw(void) {
   program = new_program;
 }
 
-// Handle encoder pin change interrupts.  This is intended to be
-// bounce-free, but may have issues depending on how the chip handles
-// interrrupts on signals that switch, then switch back quickly.
-
 ISR (PCINT2_vect) {
-  // Which pin changed?  Only one pin should change, the other should
-  // be stable.  So whichever pin changed, we update the stable state
-  // of the other pin.  But if the interrupting pin is unstable it
-  // might have changed back by the time we read it.  Then will it
-  // interrupt again so we can read the changed value?
-
-  uint8_t a = ENCODER_A();
-  uint8_t b = ENCODER_B();
-
-  if (encoder.last_a != a) {
-    encoder.last_a = a;
-    // a changed, so b is stable at its current value.  But only
-    // update b and fire ccw if this is the first time we've read this
-    // stable value.  I.e., a may be bouncing up and down, but we only
-    // want to update b once, and skip this stuff if we've already
-    // updated it.
-    if (encoder.stable_b != b) {
-      encoder.stable_b = b;
-      // Fire ccw if we've come back around to 00.
-      if (b == 0 && encoder.stable_a == 0) {
-	ccw();
-      }
-    }
-  }
-
-  // Same logic, but b changed and a is stable.
-
-  if (encoder.last_b != b) {
-    encoder.last_b = b;
-    if (encoder.stable_a != a) {
-      encoder.stable_a = a;
-      if (a == 0 && encoder.stable_b == 0) {
-	cw();
-      }
-    }
-  }
+  handle_encoder(&encoder, encoder_a, encoder_b, cw, ccw);
 }
 
 #else
