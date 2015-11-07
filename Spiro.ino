@@ -30,10 +30,10 @@ static struct encoder encoder;
 INLINE(uint8_t, encoder_a, (void)) { return read_encoder(PIND, PD6); }
 INLINE(uint8_t, encoder_b, (void)) { return read_encoder(PIND, PD7); }
 
-// program is updated from an interrupt handler so it's volatile.  But
+// encoder_value is updated from an interrupt handler so it's volatile.  But
 // it doesn't need atomic access since it's a just a byte.
 
-volatile static uint8_t program;
+volatile static uint8_t encoder_value;
 
 // One adc_value is updated each time through the main loop.
 
@@ -159,7 +159,7 @@ initialize() {
 
 static void
 run() {
-  int adc_channel = 0;
+  uint8_t adc_channel = 0;
 
   int count = 0;
 
@@ -167,7 +167,7 @@ run() {
     // Calculate the next point.
 
     struct point p;
-    programs[program](&p);
+    programs[encoder_value](&p);
 
 #if 0
     if (++count == 1000) {
@@ -216,19 +216,19 @@ run() {
 }
 
 static __inline__ void ccw(void) {
-  uint8_t new_program = program - 1;
-  if (new_program == 0xFF) {
-    new_program = NUM_PROGRAMS - 1;
+  uint8_t new_encoder_value = encoder_value - 1;
+  if (new_encoder_value == 0xFF) {
+    new_encoder_value = NUM_PROGRAMS - 1;
   }
-  program = new_program;
+  encoder_value = new_encoder_value;
 }
 
 static __inline__ void cw(void) {
-  uint8_t new_program = program + 1;
-  if (new_program == NUM_PROGRAMS) {
-    new_program = 0;
+  uint8_t new_encoder_value = encoder_value + 1;
+  if (new_encoder_value == NUM_PROGRAMS) {
+    new_encoder_value = 0;
   }
-  program = new_program;
+  encoder_value = new_encoder_value;
 }
 
 ISR (PCINT2_vect) {
