@@ -424,7 +424,6 @@ programs = ARGV.map do |filename|
 end
 
 puts %Q{
-  #define NUM_PROGRAMS (#{programs.size})
   static void (*programs[])(struct point *p) = {
     #{programs.join(", ")}
   };

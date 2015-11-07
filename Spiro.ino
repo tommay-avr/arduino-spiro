@@ -58,6 +58,8 @@ diamond(fix16_t n) {
 
 #include "spiro.h"
 
+#define NUM_PROGRAMS (sizeof(programs) / sizeof(programs[0]))
+
 #ifdef ARDUINO
 
 #include <avr/io.h>

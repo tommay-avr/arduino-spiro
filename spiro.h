@@ -899,7 +899,6 @@
     
 #define prg_81_phased_diamond_main prg_81_phased_diamond_rotate_3
 
-  #define NUM_PROGRAMS (11)
   static void (*programs[])(struct point *p) = {
     prg_00_circles_main, prg_01_circle_main, prg_02_spiro_main, prg_05_magnitude_main, prg_06_phase_main, prg_60_lissajous_main, prg_70_spinning_diamond_main, prg_71_spin_diamond_main, prg_72_2xspin_diamond_main, prg_80_phase_diamond_main, prg_81_phased_diamond_main
   };
