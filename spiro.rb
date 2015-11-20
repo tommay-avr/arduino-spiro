@@ -5,13 +5,19 @@ class Term
     @name = "#{prefix}_#{self.class.name.downcase}_#{self.class.next_number}"
   end
 
-  def name
+  def create(code)
+    puts %Q{
+      #{declare}
+      {
+        #{code}
+      }
+    }
     @name
   end
 
   def declare(return_type, args)
     %Q{
-      INLINE(#{return_type}, #{name}, (#{args}))
+      INLINE(#{return_type}, #{@name}, (#{args}))
     }
   end
 
@@ -85,24 +91,20 @@ class Knob < Term1
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        uint16_t value = adc_values[#{@channel}];
-        #{(@lo && @hi) ?
-          %Q{
-            int16_t result;
-            MultiU16X16toH16Round(result, value, #{@hi} - #{@lo});
-            return result + #{@lo};
-          } :
-          %Q{
-            // [-1.0, 1.0)
-            return value - 32768;
-          }
+    super %Q{
+      uint16_t value = adc_values[#{@channel}];
+      #{(@lo && @hi) ?
+        %Q{
+          int16_t result;
+          MultiU16X16toH16Round(result, value, #{@hi} - #{@lo});
+          return result + #{@lo};
+        } :
+        %Q{
+          // [-1.0, 1.0)
+          return value - 32768;
         }
       }
     }
-    name
   end
 end
 
@@ -117,13 +119,9 @@ class Constant < Term1
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        return #{@value};
-      }
+    super %Q{
+      return #{@value};
     }
-    name
   end
 end
 
@@ -135,14 +133,10 @@ class Ramp < Term1
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        static fix16_t accum #{@init != 0 ? "= #{@init}" : ""};
-        return accum += #{@delta.create}();
-      }
+    super %Q{
+      static fix16_t accum #{@init != 0 ? "= #{@init}" : ""};
+      return accum += #{@delta.create}();
     }
-    name
   end
 end
 
@@ -158,21 +152,17 @@ class DDA < Term1
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        static fix16_t n = 0;
-        static int16_t error = 0;
+    super %Q{
+      static fix16_t n = 0;
+      static int16_t error = 0;
 
-        error += #{@n};
-        if (error >= 0) {
-          error -= #{@ticks};
-          n++;
-        }
-        return n;
+      error += #{@n};
+      if (error >= 0) {
+        error -= #{@ticks};
+        n++;
       }
+      return n;
     }
-    name
   end
 end
 
@@ -190,16 +180,12 @@ class Quadrature < Term2
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        fix16_t angle = #{@angle.create}();
-        p->x = #{@fx}(angle);
-        fix16_t phase = #{@phase.create}();
-        p->y = #{@fy}(angle + phase);
-      }
+    super %Q{
+      fix16_t angle = #{@angle.create}();
+      p->x = #{@fx}(angle);
+      fix16_t phase = #{@phase.create}();
+      p->y = #{@fy}(angle + phase);
     }
-    name
   end
 end
 
@@ -223,14 +209,10 @@ class Lissajous < Term2
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        p->x = #{@x.create}();
-        p->y = #{@y.create}();
-      }
+    super %Q{
+      p->x = #{@x.create}();
+      p->y = #{@y.create}();
     }
-    name
   end
 end
 
@@ -246,13 +228,9 @@ class Sum1 < Term1
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        return #{@term1.create}() + #{@term2.create}();
-      }
+    super %Q{
+      return #{@term1.create}() + #{@term2.create}();
     }
-    name
   end
 end
 
@@ -264,17 +242,13 @@ class Sum2 < Term2
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        #{@term1.create}(p);
-        struct point p2;
-        #{@term2.create}(&p2);
-        p->x += p2.x;
-        p->y += p2.y;
-      }
+    super %Q{
+      #{@term1.create}(p);
+      struct point p2;
+      #{@term2.create}(&p2);
+      p->x += p2.x;
+      p->y += p2.y;
     }
-    name
   end
 end
 
@@ -286,13 +260,9 @@ class Scale1 < Term1
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        return times_signed(#{@term.create}(), #{@scale.create}());
-      }
+    super %Q{
+      return times_signed(#{@term.create}(), #{@scale.create}());
     }
-    name
   end
 end
 
@@ -305,17 +275,13 @@ class Scale2 < Term2
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        #{@term.create}(p);
-        fix16_t xscale = #{@xscale.create}();
-        p->x = times_signed(p->x, xscale);
-        fix16_t yscale = #{@yscale ? "#{@yscale.create}()" : "xscale"};
-        p->y = times_signed(p->y, yscale);
-      }
+    super %Q{
+      #{@term.create}(p);
+      fix16_t xscale = #{@xscale.create}();
+      p->x = times_signed(p->x, xscale);
+      fix16_t yscale = #{@yscale ? "#{@yscale.create}()" : "xscale"};
+      p->y = times_signed(p->y, yscale);
     }
-    name
   end
 end
 
@@ -327,22 +293,18 @@ class Rotate < Term2
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        #{@term.create}(p);
-        fix16_t angle = #{@angle.create}();
-        // What if we rotate something with a weird phase?  Probably need to
-        // ensure s^2 + c^2 = 1.  Except what if they're both 0?
-        fix16_t s = zsin(angle);
-        fix16_t c = zcos(angle);
-        fix16_t x = times_signed(p->x, c) - times_signed(p->y, s);
-        fix16_t y = times_signed(p->x, s) + times_signed(p->y, c);
-        p->x = x * 2;
-        p->y = y * 2;
-      }
+    super %Q{
+      #{@term.create}(p);
+      fix16_t angle = #{@angle.create}();
+      // What if we rotate something with a weird phase?  Probably need to
+      // ensure s^2 + c^2 = 1.  Except what if they're both 0?
+      fix16_t s = zsin(angle);
+      fix16_t c = zcos(angle);
+      fix16_t x = times_signed(p->x, c) - times_signed(p->y, s);
+      fix16_t y = times_signed(p->x, s) + times_signed(p->y, c);
+      p->x = x * 2;
+      p->y = y * 2;
     }
-    name
   end
 end
 
@@ -353,13 +315,9 @@ class Sin < Term1
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        return zsin(#{@term.create}()) * 2;
-      }
+    super %Q{
+      return zsin(#{@term.create}()) * 2;
     }
-    name
   end
 end
 
@@ -376,22 +334,18 @@ class Mix < Term1
   end
 
   def create
-    puts %Q{
-      #{declare}
-      {
-        // Mix: [-1.0, 1.0):
-        // -1: 1.0*term1 + 0.0*term2
-        //  0: 0.5*tern1 + 0.5*term2
-        //  1: 0.0*term1 + 1.0*term2
-        //  (1-mix)/2 * term1 + (1+mix)/2 * term2
-        fix16_t mix = #{@mix.create}();
-        fix16_t term1 = #{@term1.create}();
-        fix16_t term2 = #{@term2.create}();
-        return times_signed((ufix16_t)(fix(1) - mix - 1) >> 1, term1) +
-               times_signed((ufix16_t)(fix(1) + mix) >> 1, term2);
-      }
+    super %Q{
+      // Mix: [-1.0, 1.0):
+      // -1: 1.0*term1 + 0.0*term2
+      //  0: 0.5*tern1 + 0.5*term2
+      //  1: 0.0*term1 + 1.0*term2
+      //  (1-mix)/2 * term1 + (1+mix)/2 * term2
+      fix16_t mix = #{@mix.create}();
+      fix16_t term1 = #{@term1.create}();
+      fix16_t term2 = #{@term2.create}();
+      return times_signed((ufix16_t)(fix(1) - mix - 1) >> 1, term1) +
+             times_signed((ufix16_t)(fix(1) + mix) >> 1, term2);
     }
-    name
   end
 end
 
