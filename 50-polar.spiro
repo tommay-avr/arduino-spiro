@@ -1,0 +1,3 @@
+polar(
+  angle: ramp(delta: 720),
+  r: sin(ramp(delta: 721)) * sin(ramp(delta: 720)))

@@ -201,6 +201,27 @@ def diamond(angle:, phase: fix(0.5))
   quadrature(angle: angle, phase: phase, fx: "diamond", fy: "diamond")
 end
 
+class Polar < Term2
+  def initialize(angle:, r:)
+    super()
+    @angle = angle
+    @r = maybe_constant(r)
+  end
+
+  def create
+    super %Q{
+      fix16_t angle = #{@angle.create}();
+      fix16_t r = #{@r.create}();
+      p->x = times_signed(r, zcos(angle));
+      p->y = times_signed(r, zsin(angle));
+    }
+  end
+end
+
+def polar(*args)
+  Polar.new(*args)
+end
+
 class Lissajous < Term2
   def initialize(x:, y:)
     super()
