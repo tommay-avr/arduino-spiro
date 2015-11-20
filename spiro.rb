@@ -171,7 +171,7 @@ def dda(*args)
 end
 
 class Quadrature < Term2
-  def initialize(angle:, phase: "fix(0.5)", fx:, fy:)
+  def initialize(angle:, phase: fix(0.5), fx:, fy:)
     super()
     @angle = maybe_constant(angle)
     @phase = maybe_constant(phase)
@@ -193,11 +193,11 @@ def quadrature(*args)
   Quadrature.new(*args)
 end
 
-def circle(angle:, phase: "fix(0.5)")
+def circle(angle:, phase: fix(0.5))
   quadrature(angle: angle, phase: phase, fx: "zsin", fy: "zsin")
 end
 
-def diamond(angle:, phase: "fix(0.5)")
+def diamond(angle:, phase: fix(0.5))
   quadrature(angle: angle, phase: phase, fx: "diamond", fy: "diamond")
 end
 
