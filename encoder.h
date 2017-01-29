@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "inline.h"
 
+// last_? is the most recent value read from each pin.  stable_? is
+// the value read when the other pin most recently changed state.
+
 struct encoder {
   uint8_t last_a;
   uint8_t last_b;
@@ -22,9 +25,12 @@ init_encoder,
   p->last_b = p->stable_b = encoder_b();
 }
 
-// Handle encoder pin change interrupts.  This is intended to be
+// handle_encoder() is called from the encoder ISR when either encoder
+// pin changes state.  It calls cw() or ccw() once per quadrature
+// cycle if a movement has been detected.  This is intended to be
 // bounce-free, but may have issues depending on how the chip handles
-// interrrupts on signals that switch, then switch back quickly.
+// interrrupts on signals that switch, then switch back quickly.  This
+// is explained in the handle_encoder() comment.
 
 INLINE(
 void,

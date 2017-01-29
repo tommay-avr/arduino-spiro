@@ -3,14 +3,19 @@
 
   PC0 - PC5: analog in [analog 0 - 5]
   PD6 - PD7 / PCINT22 - PCINT23: encoder in [pin 6/7]
-  PB2: nSS out (DAC chip select) [pin 10]
   PB1: nLDAC out (DAC latch load) [pin 9]
+    This is SPI bus stuff managed by the Atmega328.  We're doing SPI
+    as a master so PB2/nSS is just a convenient output pin connected
+    to the nSS input of the DAC:
+  PB2: DAC chip select [pin 10]
   PB3: MOSI [pin 11]
   PB5: SCK [pin 13]
-
-  PB6 - PB7: xtal
-  PC6: nRESET
 */
+
+// This can be compiled with ARDUINO defined to generate code an
+// Arduino, or without ARDUINO defined to generate code that will run
+// on a regular system and print the (x,y) values that would be sent
+// to the DAC.
 
 #pragma GCC optimize ("-O2")
 
@@ -25,25 +30,34 @@ struct point {
   fix16_t y;
 };
 
+// encoder holds the state of the rotary encoder pins.  It's updated
+// in an ISR.  When the encoder moves the ISR fires and may call cw()
+// or ccw() to update the program state (encoder_value).  See the
+// calls to init_encoder() and handle_encoder() below.  init_encoder()
+// could store the read_encoder parameters and the cw/ccw pointers,
+// but for now I've chosen to use explicit inline functions and macros
+// instead of doing indirect calls via struct encoder.
+
 static struct encoder encoder;
 
 INLINE(uint8_t, encoder_a, (void)) { return read_encoder(PIND, PD6); }
 INLINE(uint8_t, encoder_b, (void)) { return read_encoder(PIND, PD7); }
 
-// encoder_value is updated from an interrupt handler so it's volatile.  But
-// it doesn't need atomic access since it's a just a byte.
+// encoder_value is updated from an ISR so it's volatile.  But it
+// doesn't need atomic access since it's just a byte.
 
 volatile static uint8_t encoder_value;
 
-// One adc_value is updated each time through the main loop.
+// One adc channel is read and its adc_value updated each time through
+// the main loop.  Assuming the adc cycle is complete.
 
 #define ADC_CHANNELS 6
 static uint16_t adc_values[ADC_CHANNELS];
 
 // As n varies between -1 and 1, it is reflected back to stay within
-// -0.5 to 0.5.  Creates a diamond, with a corresponding quadrature
-// signal.
-//
+// -0.5 to 0.5.  Creates a diamond, when used with a corresponding
+// quadrature signal.
+
 static __inline__ fix16_t
 diamond(fix16_t n) {
   // Need to use an inner cast to unsigned because signed integer overflow
@@ -56,7 +70,10 @@ diamond(fix16_t n) {
   }
 }
 
-#include "spiro.h"
+#include "spiro.h"		// Get programs[].
+
+// programs comes from spiro.h which is created by spiro.rb from the
+// *.spiro files.  See Makefile.
 
 #define NUM_PROGRAMS (sizeof(programs) / sizeof(programs[0]))
 
@@ -69,11 +86,12 @@ diamond(fix16_t n) {
 static void initialize(void);
 static void run(void);
 
-static unsigned long then;
+// setup() and loop() are called by the Arduino framework.  We do the looping
+// in our run() function so loop() is a noop.
 
 void
 setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // Initialize the Serial over USB for debug logging.
   initialize();
   run();
 }
@@ -87,12 +105,12 @@ initialize() {
 
   PORTD = _BV(PORTD6) | _BV(PORTD7);
 
-  // Enable their pin changfe interrupts.
+  // Enable their pin change interrupts.
 
   PCMSK2 |= _BV(PCINT22) | _BV(PCINT23);
   PCICR |= _BV(PCIE2);
 
-  // Set the current encoder pin states.
+  // Fetch the current encoder pin states.
 
   init_encoder(&encoder, encoder_a, encoder_b);
 
@@ -121,7 +139,7 @@ initialize() {
 
   ADCSRA |= _BV(ADEN);
 
-  // nSS/PB2 is the DAC chip select.  Output high.
+  // PB2 is the DAC chip select.  Output high.
 
   DDRB |= _BV(DDB2);		// PB2 is output.
   PORTB |= _BV(PORTB2);		// PB2 is high.
@@ -172,7 +190,9 @@ run() {
     programs[encoder_value](&p);
 
 #if 0
+    // Output the time taken in every 1000 loops.
     if (++count == 1000) {
+      static unsigned long then;
       count = 0;
       unsigned long now = micros();
       unsigned long delta = now - then;
@@ -180,6 +200,7 @@ run() {
       Serial.println(delta);
     }
 #elif 0
+    // Output the current point.
     Serial.print(p.x);
     Serial.print(", ");
     Serial.println(p.y);
@@ -217,6 +238,8 @@ run() {
   }
 }
 
+// Called rom the encoder ISR when the encoder is moved ccw.
+
 static __inline__ void ccw(void) {
   uint8_t new_encoder_value = encoder_value - 1;
   if (new_encoder_value == 0xFF) {
@@ -225,6 +248,8 @@ static __inline__ void ccw(void) {
   encoder_value = new_encoder_value;
 }
 
+// Called rom the encoder ISR when the encoder is moved cw.
+
 static __inline__ void cw(void) {
   uint8_t new_encoder_value = encoder_value + 1;
   if (new_encoder_value == NUM_PROGRAMS) {
@@ -232,6 +257,8 @@ static __inline__ void cw(void) {
   }
   encoder_value = new_encoder_value;
 }
+
+// Handle interrupts for both encoder pins.
 
 ISR (PCINT2_vect) {
   handle_encoder(&encoder, encoder_a, encoder_b, cw, ccw);

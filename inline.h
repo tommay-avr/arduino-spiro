@@ -1,6 +1,9 @@
 #ifndef _inline_h_
 #define _inline_h_
 
+// Macros to hide the ugly to make functions always inline or never
+// inline.
+
 #define INLINE(TYPE, NAME, ARGS) \
   static __inline__ TYPE \
   NAME ARGS \
