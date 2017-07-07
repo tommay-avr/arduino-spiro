@@ -4,10 +4,10 @@
   PC0 - PC5: analog in [analog 0 - 5]
   PD6 - PD7 / PCINT22 - PCINT23: encoder in [pin 6/7]
   PB1: nLDAC out (DAC latch load) [pin 9]
+  PB2: DAC chip select [pin 10]
     This is SPI bus stuff managed by the Atmega328.  We're doing SPI
     as a master so PB2/nSS is just a convenient output pin connected
     to the nSS input of the DAC:
-  PB2: DAC chip select [pin 10]
   PB3: MOSI [pin 11]
   PB5: SCK [pin 13]
 */
@@ -125,8 +125,9 @@ initialize() {
 
   ADMUX |= _BV(REFS0);
 
-  // Left adjust ADC result in ADCH:ADCL.  It's just easier to deal
-  // with that way.
+  // Left adjust ADC result in ADCH:ADCL so we can interpret the result
+  // as an unsigned number [0, 65535] or equivalently as a 1.15 number
+  // [0, 2).
 
   ADMUX |= _BV(ADLAR);
 
