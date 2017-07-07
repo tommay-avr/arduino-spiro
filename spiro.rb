@@ -1,5 +1,49 @@
 #!/usr/bin/env ruby
 
+# Read a bunch of *.spiro files which contain expressions written in a
+# ruby-based DSL and convert them to C to be compiled into expressions
+# the produce the (x,y) output to the DAC.
+
+# There are two kinds of expressions, made up of Terms: single-value
+# expressions that output an angle, and double-value expressions that
+# output (x, y).
+
+# All numbers are signed 1.15 fixed-point integers in the range [-1.0,
+# 1.0).
+
+# Angles are in the range [-1.0, 1.0) corresponding to [-pi, pi) radians.
+
+# Angle generators:
+# - Constant
+#   Either an integer which is interpreted as-is, or fix(N)
+#   which converts N to 1.15.  E.g., fix(0.5).
+# - knob(channel, lo: nil, hi: nil)
+#   Reads the adc channel and returns a number [-1.0, 1.0) or [lo, hi).
+# - ramp(init: 0, delta:)
+#   Initializes accum = init and returns accum += delta each iteration to
+#   create a quickly-rising ramp.
+# - dda(n:, ticks:)
+#   Makes a ramp that's incremented every n/ticks times through the loop
+#   for a slowly-rising ramp.
+#
+# Coordinate generators:
+#
+# Sin
+# Mix
+# Sum1
+# Scale1
+
+# Coordinates subclass Term2.
+# Quadrature:
+# circle:
+# diamond:
+# Polar:
+# Lissajous:
+#
+# Sum2
+# Scale2
+# Rotate
+
 class Term
   def initialize
     @name = "#{prefix}_#{self.class.name.downcase}_#{self.class.next_number}"
@@ -24,6 +68,8 @@ class Term
   def maybe_constant(term)
     case term
     when Fixnum, String
+      # The "fix" function returns its result as a string, e.g., "fix(0.5)",
+      # so handle both Fixnum and String as Constant.
       Constant.new(value: term)
     else
       term
